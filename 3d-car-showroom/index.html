@@ -159,6 +159,50 @@
         <button class="btn-panel-action" id="panel-close-btn">Close</button>
       </div>
     </aside>
+
+    <!-- 360° Car Inspection Control Panel (Phase 5) -->
+    <div id="inspection-panel" class="inspection-toolbar" aria-hidden="true">
+      <div class="inspection-toolbar-top">
+        <div class="inspection-mode-badge">
+          <span class="inspection-pulse-dot"></span>
+          <span class="badge-text">INSPECTION MODE</span>
+        </div>
+        <span class="inspection-car-name" id="inspection-car-label">BMW M4</span>
+        <button class="btn-exit-inspection" id="btn-exit-inspection" title="Return to normal showroom view">
+          <span class="btn-icon-symbol">✕</span> Exit Inspection
+        </button>
+      </div>
+
+      <!-- Drag Rotation Area for Mouse / Touch Swipe -->
+      <div class="inspection-drag-zone" id="inspection-drag-zone" title="Click & drag or swipe horizontally to rotate car">
+        <span class="drag-hint-icon">↔</span>
+        <span class="drag-hint-text">Drag or swipe horizontally to rotate 360°</span>
+      </div>
+
+      <!-- Inspection Action Buttons Row -->
+      <div class="inspection-controls-row">
+        <button class="btn-inspect" id="btn-rotate-left" title="Rotate selected car left by 30°">
+          <span class="btn-symbol">⟲</span>
+          <span class="btn-label">Rotate Left</span>
+        </button>
+        <button class="btn-inspect" id="btn-rotate-right" title="Rotate selected car right by 30°">
+          <span class="btn-symbol">⟳</span>
+          <span class="btn-label">Rotate Right</span>
+        </button>
+        <button class="btn-inspect" id="btn-zoom-in" title="Move camera closer to car">
+          <span class="btn-symbol">+</span>
+          <span class="btn-label">Zoom In</span>
+        </button>
+        <button class="btn-inspect" id="btn-zoom-out" title="Move camera farther from car">
+          <span class="btn-symbol">−</span>
+          <span class="btn-label">Zoom Out</span>
+        </button>
+        <button class="btn-inspect" id="btn-reset-view" title="Restore original car rotation and camera view">
+          <span class="btn-symbol">↺</span>
+          <span class="btn-label">Reset View</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Introductory Welcome Modal Dialog -->

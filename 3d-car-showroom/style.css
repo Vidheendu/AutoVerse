@@ -454,7 +454,7 @@ html, body {
    -------------------------------------------------------------------------- */
 .toast-notification {
   position: fixed;
-  bottom: 80px;
+  bottom: 175px;
   left: 50%;
   transform: translateX(-50%) translateY(25px);
   background: rgba(15, 23, 42, 0.94);
@@ -793,5 +793,225 @@ html, body {
     grid-column: span 1;
   }
 }
+
+/* --------------------------------------------------------------------------
+   10. 360° Car Inspection Control Panel (Phase 5)
+   -------------------------------------------------------------------------- */
+.inspection-toolbar {
+  position: fixed;
+  bottom: 68px;
+  left: 50%;
+  transform: translateX(-50%) translateY(130px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  z-index: 600;
+  background: rgba(11, 15, 23, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 25px rgba(56, 189, 248, 0.16);
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 530px;
+  max-width: 92vw;
+}
+
+.inspection-toolbar.active {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Header within Inspection Toolbar */
+.inspection-toolbar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inspection-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.08em;
+}
+
+.inspection-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+  animation: pulseDot 1.8s infinite;
+}
+
+.inspection-car-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  font-family: var(--font-primary);
+}
+
+.btn-exit-inspection {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-primary);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.btn-exit-inspection:hover {
+  background: rgba(239, 68, 68, 0.28);
+  border-color: rgba(239, 68, 68, 0.75);
+  color: #ffffff;
+  transform: scale(1.03);
+}
+
+/* Drag to Rotate Zone */
+.inspection-drag-zone {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(56, 189, 248, 0.28);
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: none;
+  transition: all 0.2s ease;
+}
+
+.inspection-drag-zone:hover {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: var(--accent-cyan);
+  color: var(--text-primary);
+}
+
+.inspection-drag-zone:active {
+  background: rgba(56, 189, 248, 0.16);
+  border-style: solid;
+}
+
+.drag-hint-icon {
+  color: var(--accent-cyan);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+/* Inspection Action Buttons Row */
+.inspection-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.btn-inspect {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: var(--text-primary);
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--font-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-inspect:hover {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: rgba(56, 189, 248, 0.55);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.btn-inspect:active {
+  transform: translateY(0);
+}
+
+.btn-inspect .btn-symbol {
+  font-size: 1.05rem;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Mobile & Tablet Responsiveness for Inspection Controls */
+@media (max-width: 768px) {
+  .inspection-toolbar {
+    min-width: 94vw;
+    bottom: 74px;
+    padding: 10px 14px;
+  }
+
+  .inspection-controls-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .btn-inspect {
+    flex-direction: column;
+    padding: 7px 4px;
+    font-size: 0.70rem;
+    gap: 3px;
+  }
+
+  .btn-inspect .btn-symbol {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .inspection-toolbar {
+    min-width: 96vw;
+    bottom: 80px;
+  }
+
+  .btn-exit-inspection {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+  }
+
+  .inspection-car-name {
+    font-size: 0.85rem;
+  }
+}
+
 
 

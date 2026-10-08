@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * AutoVerse VR - 3D Car Showroom Controller
- * Phase 4: Interactive Car Selection & Technical Specifications
+ * Phase 5: 360° Car Inspection & View Controls
  * ============================================================================
  */
 
@@ -12,7 +12,8 @@
  * Master catalog defining all seven vehicles in the showroom.
  * Each vehicle has its own specifications (engine, power, transmission,
  * fuel, top speed, 0-100 km/h acceleration, price), 3D model transforms,
- * bay IDs, and VR board coordinates.
+ * initial rotation axes, bay center coordinates, inspection camera offsets,
+ * and VR board coordinates.
  */
 const cars = [
   {
@@ -31,8 +32,15 @@ const cars = [
     scale: "0.24 0.24 0.24",
     position: "0.16 0.05 0.15",
     rotation: "0 45 0",
+    initialRotX: 0,
+    initialRotY: 45,
+    initialRotZ: 0,
     bayId: "bay-bmw-m4",
     spotId: "spot-bmw-m4",
+    bayCenter: { x: -10, y: 0.6, z: 10 },
+    inspectionCam: { x: -6.8, y: 1.35, z: 13.2 },
+    minZoomDist: 2.6,
+    maxZoomDist: 7.2,
     vrBoardPosition: "-7.6 2.0 11.5",
     vrBoardRotation: "0 -25 0"
   },
@@ -51,8 +59,15 @@ const cars = [
     scale: "1 1 1",
     position: "0 0.05 0",
     rotation: "0 -45 0",
+    initialRotX: 0,
+    initialRotY: -45,
+    initialRotZ: 0,
     bayId: "bay-mercedes-amg-gt",
     spotId: "spot-mercedes-amg-gt",
+    bayCenter: { x: 10, y: 0.6, z: 10 },
+    inspectionCam: { x: 6.8, y: 1.35, z: 13.2 },
+    minZoomDist: 2.6,
+    maxZoomDist: 7.2,
     vrBoardPosition: "7.6 2.0 11.5",
     vrBoardRotation: "0 25 0"
   },
@@ -72,8 +87,15 @@ const cars = [
     // Offset for PlayCanvas origin (min.y is -0.632m)
     position: "0 0.71 0",
     rotation: "0 55 0",
+    initialRotX: 0,
+    initialRotY: 55,
+    initialRotZ: 0,
     bayId: "bay-porsche-911",
     spotId: "spot-porsche-911",
+    bayCenter: { x: -11, y: 0.7, z: 2 },
+    inspectionCam: { x: -7.8, y: 1.35, z: 5.2 },
+    minZoomDist: 2.6,
+    maxZoomDist: 7.2,
     vrBoardPosition: "-8.4 2.0 3.6",
     vrBoardRotation: "0 -25 0"
   },
@@ -93,8 +115,15 @@ const cars = [
     // Standard 1:1 meter model with origin at tire baseline
     position: "0 0.05 0",
     rotation: "0 -55 0",
+    initialRotX: 0,
+    initialRotY: -55,
+    initialRotZ: 0,
     bayId: "bay-audi-r8",
     spotId: "spot-audi-r8",
+    bayCenter: { x: 11, y: 0.6, z: 2 },
+    inspectionCam: { x: 7.8, y: 1.35, z: 5.2 },
+    minZoomDist: 2.6,
+    maxZoomDist: 7.2,
     vrBoardPosition: "8.4 2.0 3.6",
     vrBoardRotation: "0 25 0"
   },
@@ -113,8 +142,15 @@ const cars = [
     scale: "1 1 1",
     position: "0 0.25 0",
     rotation: "0 -35 0",
+    initialRotX: 0,
+    initialRotY: -35,
+    initialRotZ: 0,
     bayId: "central-platform",
     spotId: "spot-lamborghini-huracan",
+    bayCenter: { x: 0, y: 0.7, z: -5 },
+    inspectionCam: { x: 0, y: 1.35, z: -0.5 },
+    minZoomDist: 2.6,
+    maxZoomDist: 7.5,
     vrBoardPosition: "0 2.2 -1.2",
     vrBoardRotation: "0 0 0"
   },
@@ -133,8 +169,15 @@ const cars = [
     scale: "1 1 1",
     position: "0 0.05 0",
     rotation: "0 35 0",
+    initialRotX: 0,
+    initialRotY: 35,
+    initialRotZ: 0,
     bayId: "bay-range-rover-sport",
     spotId: "spot-range-rover-sport",
+    bayCenter: { x: -10, y: 0.8, z: -12 },
+    inspectionCam: { x: -6.8, y: 1.45, z: -8.8 },
+    minZoomDist: 2.8,
+    maxZoomDist: 7.5,
     vrBoardPosition: "-7.6 2.0 -10.5",
     vrBoardRotation: "0 -25 0"
   },
@@ -153,8 +196,15 @@ const cars = [
     scale: "1 1 1",
     position: "0 0.05 0",
     rotation: "0 -35 0",
+    initialRotX: 0,
+    initialRotY: -35,
+    initialRotZ: 0,
     bayId: "bay-ford-mustang",
     spotId: "spot-ford-mustang",
+    bayCenter: { x: 10, y: 0.7, z: -12 },
+    inspectionCam: { x: 6.8, y: 1.35, z: -8.8 },
+    minZoomDist: 2.6,
+    maxZoomDist: 7.2,
     vrBoardPosition: "7.6 2.0 -10.5",
     vrBoardRotation: "0 25 0"
   }
@@ -164,6 +214,11 @@ const cars = [
 // 2. State & Toast Notification Helper
 // ----------------------------------------------------------------------------
 let currentlySelectedCarId = null;
+let activeInspectionCar = null;
+let activeRotationY = 0;
+let activeRotationAnimId = null;
+let currentZoomDist = 4.5;
+let baselineZoomDist = 4.5;
 let toastTimer = null;
 
 function showCarSelectedToast(carName) {
@@ -183,22 +238,254 @@ function showCarSelectedToast(carName) {
 }
 
 // ----------------------------------------------------------------------------
-// 3. Car Selection & Specifications Controller (Phase 4)
+// 3. Smooth Vehicle Rotation Animation Helper
 // ----------------------------------------------------------------------------
 /**
- * Selects a vehicle by ID, populates the single reusable HTML information panel,
- * highlights the platform subtly, and renders the 3D in-world VR display board.
+ * Smoothly interpolates the selected car's Y rotation over time without tilting X or Z.
+ */
+function animateCarRotation(fromY, toY, duration = 320) {
+  if (!activeInspectionCar) return;
+  const carEl = document.getElementById(`car-${activeInspectionCar.id}`);
+  if (!carEl) return;
+
+  const startTime = performance.now();
+  if (activeRotationAnimId) {
+    cancelAnimationFrame(activeRotationAnimId);
+    activeRotationAnimId = null;
+  }
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Smooth quadratic ease-out
+    const ease = 1 - Math.pow(1 - progress, 2);
+    const curY = fromY + (toY - fromY) * ease;
+
+    carEl.setAttribute('rotation', `${activeInspectionCar.initialRotX} ${curY.toFixed(2)} ${activeInspectionCar.initialRotZ}`);
+
+    if (progress < 1) {
+      activeRotationAnimId = requestAnimationFrame(step);
+    } else {
+      activeRotationY = toY;
+      activeRotationAnimId = null;
+    }
+  }
+
+  activeRotationAnimId = requestAnimationFrame(step);
+}
+
+// ----------------------------------------------------------------------------
+// 4. Inspection Mode & View Controls (Phase 5)
+// ----------------------------------------------------------------------------
+/**
+ * Enters Inspection Mode for the active car, orienting the desktop camera
+ * towards the vehicle and displaying the inspection toolbar.
+ */
+function enterInspectionMode(carData) {
+  activeInspectionCar = carData;
+  activeRotationY = carData.initialRotY;
+
+  // Calculate baseline distance between inspection camera and car center
+  const dx = carData.inspectionCam.x - carData.bayCenter.x;
+  const dz = carData.inspectionCam.z - carData.bayCenter.z;
+  currentZoomDist = Math.sqrt(dx * dx + dz * dz);
+  baselineZoomDist = currentZoomDist;
+
+  // If in desktop mode (not immersive VR), transition camera towards inspection viewpoint
+  const sceneEl = document.querySelector('a-scene');
+  const isVR = sceneEl && sceneEl.is('vr-mode');
+  if (!isVR) {
+    const cameraRig = document.getElementById('camera-rig');
+    const cameraHead = document.getElementById('camera-head');
+    if (cameraRig) {
+      cameraRig.setAttribute('position', `${carData.inspectionCam.x} ${carData.inspectionCam.y} ${carData.inspectionCam.z}`);
+    }
+    if (cameraHead) {
+      const lookYaw = Math.atan2(carData.bayCenter.x - carData.inspectionCam.x, carData.bayCenter.z - carData.inspectionCam.z);
+      const lookControls = cameraHead.components && cameraHead.components['look-controls'];
+      if (lookControls && lookControls.yawObject && lookControls.pitchObject) {
+        lookControls.yawObject.rotation.y = lookYaw;
+        lookControls.pitchObject.rotation.x = -0.08;
+      }
+    }
+  }
+
+  // Update inspection panel UI
+  const inspectionPanel = document.getElementById('inspection-panel');
+  const inspectionCarLabel = document.getElementById('inspection-car-label');
+  if (inspectionCarLabel) {
+    inspectionCarLabel.textContent = `${carData.name} • ${carData.category}`;
+  }
+  if (inspectionPanel) {
+    inspectionPanel.classList.add('active');
+    inspectionPanel.setAttribute('aria-hidden', 'false');
+  }
+
+  console.log(`🔍 [AutoVerse Inspection] Active inspection vehicle: ${carData.name}`);
+}
+
+/**
+ * Rotates the selected car by delta degrees around its vertical Y axis.
+ */
+function rotateCar(deltaDeg) {
+  if (!activeInspectionCar) return;
+  const targetY = activeRotationY + deltaDeg;
+  animateCarRotation(activeRotationY, targetY, 320);
+}
+
+/**
+ * Moves camera closer to the selected vehicle along the line of sight (bounded).
+ */
+function zoomIn() {
+  if (!activeInspectionCar) return;
+  const sceneEl = document.querySelector('a-scene');
+  if (sceneEl && sceneEl.is('vr-mode')) return; // Do not alter headset tracking in VR
+
+  const minD = activeInspectionCar.minZoomDist || 2.6;
+  const newDist = Math.max(minD, currentZoomDist - 0.75);
+  applyCameraZoomDistance(newDist);
+}
+
+/**
+ * Moves camera farther from the selected vehicle along the line of sight (bounded).
+ */
+function zoomOut() {
+  if (!activeInspectionCar) return;
+  const sceneEl = document.querySelector('a-scene');
+  if (sceneEl && sceneEl.is('vr-mode')) return;
+
+  const maxD = activeInspectionCar.maxZoomDist || 7.5;
+  const newDist = Math.min(maxD, currentZoomDist + 0.75);
+  applyCameraZoomDistance(newDist);
+}
+
+/**
+ * Recalculates camera coordinates based on inspection radial distance.
+ */
+function applyCameraZoomDistance(dist) {
+  currentZoomDist = dist;
+  const car = activeInspectionCar;
+  const dx = car.inspectionCam.x - car.bayCenter.x;
+  const dz = car.inspectionCam.z - car.bayCenter.z;
+  const baseD = Math.sqrt(dx * dx + dz * dz);
+  if (baseD === 0) return;
+
+  const dirX = dx / baseD;
+  const dirZ = dz / baseD;
+
+  const newCamX = car.bayCenter.x + dirX * dist;
+  const newCamZ = car.bayCenter.z + dirZ * dist;
+
+  const cameraRig = document.getElementById('camera-rig');
+  if (cameraRig) {
+    cameraRig.setAttribute('position', `${newCamX.toFixed(2)} ${car.inspectionCam.y} ${newCamZ.toFixed(2)}`);
+  }
+}
+
+/**
+ * Restores original car rotation, camera distance, and viewpoint for the selected car.
+ * The car remains in inspection mode.
+ */
+function resetCarView() {
+  if (!activeInspectionCar) return;
+
+  // Restore original car rotation
+  animateCarRotation(activeRotationY, activeInspectionCar.initialRotY, 320);
+  activeRotationY = activeInspectionCar.initialRotY;
+
+  // Restore camera position & distance
+  const sceneEl = document.querySelector('a-scene');
+  if (!sceneEl || !sceneEl.is('vr-mode')) {
+    currentZoomDist = baselineZoomDist;
+    const cameraRig = document.getElementById('camera-rig');
+    const cameraHead = document.getElementById('camera-head');
+    if (cameraRig) {
+      cameraRig.setAttribute('position', `${activeInspectionCar.inspectionCam.x} ${activeInspectionCar.inspectionCam.y} ${activeInspectionCar.inspectionCam.z}`);
+    }
+    if (cameraHead) {
+      const lookYaw = Math.atan2(activeInspectionCar.bayCenter.x - activeInspectionCar.inspectionCam.x, activeInspectionCar.bayCenter.z - activeInspectionCar.inspectionCam.z);
+      const lookControls = cameraHead.components && cameraHead.components['look-controls'];
+      if (lookControls && lookControls.yawObject && lookControls.pitchObject) {
+        lookControls.yawObject.rotation.y = lookYaw;
+        lookControls.pitchObject.rotation.x = -0.08;
+      }
+    }
+  }
+
+  showCarSelectedToast(`${activeInspectionCar.name} view reset`);
+}
+
+/**
+ * Exits Inspection Mode completely: restores the car's original orientation,
+ * returns camera to showroom aisle, removes inspection toolbar, and clears selection.
+ */
+function exitInspectionMode() {
+  if (activeInspectionCar) {
+    // Restore car's original rotation on platform
+    const carEl = document.getElementById(`car-${activeInspectionCar.id}`);
+    if (carEl) {
+      carEl.setAttribute('rotation', `${activeInspectionCar.initialRotX} ${activeInspectionCar.initialRotY} ${activeInspectionCar.initialRotZ}`);
+    }
+  }
+
+  // Restore camera to showroom entrance
+  const sceneEl = document.querySelector('a-scene');
+  if (!sceneEl || !sceneEl.is('vr-mode')) {
+    const cameraRig = document.getElementById('camera-rig');
+    const cameraHead = document.getElementById('camera-head');
+    if (cameraRig) {
+      cameraRig.setAttribute('position', '0 0 15');
+    }
+    if (cameraHead) {
+      cameraHead.setAttribute('rotation', '0 0 0');
+      const lookControls = cameraHead.components && cameraHead.components['look-controls'];
+      if (lookControls && lookControls.yawObject && lookControls.pitchObject) {
+        lookControls.yawObject.rotation.y = 0;
+        lookControls.pitchObject.rotation.x = 0;
+      }
+    }
+  }
+
+  // Hide inspection controls panel
+  const inspectionPanel = document.getElementById('inspection-panel');
+  if (inspectionPanel) {
+    inspectionPanel.classList.remove('active');
+    inspectionPanel.setAttribute('aria-hidden', 'true');
+  }
+
+  // Deselect car, hide platform highlight, hide specifications panel and VR board
+  deselectCar(true);
+
+  activeInspectionCar = null;
+  activeRotationAnimId = null;
+  console.log('🚪 Exited Inspection Mode.');
+}
+
+// ----------------------------------------------------------------------------
+// 5. Car Selection & Specifications Controller (Phase 4 & 5 Integration)
+// ----------------------------------------------------------------------------
+/**
+ * Selects a vehicle by ID. If another vehicle was previously inspected,
+ * its original rotation is safely restored. Then enters inspection mode for the new vehicle.
  */
 function selectCar(carId) {
   const carData = cars.find(c => c.id === carId);
   if (!carData) return;
 
-  // Clear previous platform highlight without closing the panel
+  // Multiple Car Safety: if switching vehicles, restore previous vehicle's rotation
+  if (activeInspectionCar && activeInspectionCar.id !== carData.id) {
+    const prevEl = document.getElementById(`car-${activeInspectionCar.id}`);
+    if (prevEl) {
+      prevEl.setAttribute('rotation', `${activeInspectionCar.initialRotX} ${activeInspectionCar.initialRotY} ${activeInspectionCar.initialRotZ}`);
+    }
+  }
+
+  // Clear previous platform highlight without hiding panels
   deselectCar(false);
 
   currentlySelectedCarId = carData.id;
 
-  // 1. Populate HTML Information Panel
+  // 1. Populate Phase 4 HTML Information Panel
   const panel = document.getElementById('car-info-panel');
   if (panel) {
     const elName = document.getElementById('panel-car-name');
@@ -247,7 +534,7 @@ function selectCar(carId) {
     spot.setAttribute('intensity', carData.id === 'lamborghini-huracan' ? '3.0' : '2.2');
   }
 
-  // 3. Populate and Position 3D VR Information Board for WebXR
+  // 3. Populate 3D VR Information Board for WebXR
   const vrBoard = document.getElementById('vr-info-board');
   if (vrBoard) {
     vrBoard.setAttribute('position', carData.vrBoardPosition);
@@ -276,14 +563,15 @@ function selectCar(carId) {
     vrBoard.setAttribute('visible', 'true');
   }
 
+  // 4. Enter Inspection Mode for this vehicle (Phase 5)
+  enterInspectionMode(carData);
+
   // Toast confirmation
   showCarSelectedToast(carData.name);
-  console.log(`🚗 Car Selected: ${carData.name} (${carData.category}) - ${carData.price}`);
 }
 
 /**
- * Deselects the active vehicle, restores default platform borders and lighting,
- * and hides the information panels.
+ * Clears selection highlights and optionally hides the specifications panel.
  */
 function deselectCar(hidePanel = true) {
   if (currentlySelectedCarId) {
@@ -320,14 +608,21 @@ function deselectCar(hidePanel = true) {
   }
 }
 
-// Expose globally for API and debugging access
+// Expose globally for API, test suites, and debugging access
 if (typeof window !== 'undefined') {
+  window.cars = cars;
   window.selectCar = selectCar;
   window.deselectCar = deselectCar;
+  window.enterInspectionMode = enterInspectionMode;
+  window.rotateCar = rotateCar;
+  window.zoomIn = zoomIn;
+  window.zoomOut = zoomOut;
+  window.resetCarView = resetCarView;
+  window.exitInspectionMode = exitInspectionMode;
 }
 
 // ----------------------------------------------------------------------------
-// 4. Reusable A-Frame Component: car-display
+// 6. Reusable A-Frame Component: car-display
 // ----------------------------------------------------------------------------
 /**
  * Component that attaches to any car entity in the scene.
@@ -345,7 +640,7 @@ function registerCarDisplayComponent() {
         const carData = cars.find(c => c.id === this.data.carId) || cars[0];
         this.carData = carData;
 
-        // Apply calibrated scale, local position, and rotation
+        // Apply calibrated scale, local position, and initial rotation
         this.el.setAttribute('scale', carData.scale);
         this.el.setAttribute('position', carData.position);
         this.el.setAttribute('rotation', carData.rotation);
@@ -388,7 +683,7 @@ function registerCarDisplayComponent() {
 }
 
 // ----------------------------------------------------------------------------
-// 5. Custom A-Frame Component: Showroom Boundary Limiter
+// 7. Custom A-Frame Component: Showroom Boundary Limiter
 // ----------------------------------------------------------------------------
 function registerShowroomBoundaries() {
   if (typeof AFRAME !== 'undefined' && !AFRAME.components['showroom-boundaries']) {
@@ -424,7 +719,7 @@ registerCarDisplayComponent();
 registerShowroomBoundaries();
 
 // ----------------------------------------------------------------------------
-// 6. UI and Scene Lifecycle Initialization on DOM Ready
+// 8. UI and Scene Lifecycle Initialization on DOM Ready
 // ----------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   // Ensure components are registered
@@ -448,6 +743,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const panelCloseIconBtn = document.getElementById('panel-close-icon-btn');
   const vrCloseBtn = document.getElementById('vr-close-btn');
 
+  // Inspection Toolbar Elements (Phase 5)
+  const inspectionPanel = document.getElementById('inspection-panel');
+  const btnRotateLeft = document.getElementById('btn-rotate-left');
+  const btnRotateRight = document.getElementById('btn-rotate-right');
+  const btnZoomIn = document.getElementById('btn-zoom-in');
+  const btnZoomOut = document.getElementById('btn-zoom-out');
+  const btnResetView = document.getElementById('btn-reset-view');
+  const btnExitInspection = document.getElementById('btn-exit-inspection');
+  const dragZone = document.getElementById('inspection-drag-zone');
+
   // Starting camera position overlooking the entire showroom aisle
   const SPAWN_POSITION = { x: 0, y: 0, z: 15 };
   const SPAWN_ROTATION = { x: 0, y: 0, z: 0 };
@@ -468,7 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --------------------------------------------------------------------------
-  // Camera Reset Viewpoint
+  // Camera Reset Viewpoint (Header Button)
   // --------------------------------------------------------------------------
   if (resetCamBtn) {
     resetCamBtn.addEventListener('click', () => {
@@ -492,7 +797,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // Specifications Panel Interaction (Phase 4)
   // --------------------------------------------------------------------------
-  // Toggle Expand / Collapse Technical Specifications
   if (viewSpecsBtn && specsDetails) {
     viewSpecsBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -505,34 +809,130 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Close Panel Handlers
+  // Closing specs panel hides specs panel ONLY (inspection mode stays active per Phase 5)
   if (panelCloseBtn) {
     panelCloseBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      deselectCar(true);
+      if (infoPanel) {
+        infoPanel.classList.remove('active');
+        infoPanel.setAttribute('aria-hidden', 'true');
+      }
     });
   }
 
   if (panelCloseIconBtn) {
     panelCloseIconBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      deselectCar(true);
+      if (infoPanel) {
+        infoPanel.classList.remove('active');
+        infoPanel.setAttribute('aria-hidden', 'true');
+      }
     });
   }
 
   if (vrCloseBtn) {
     vrCloseBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      deselectCar(true);
+      exitInspectionMode();
     });
   }
 
-  // Prevent camera look/movement controls when interacting with the HTML panel
+  // Prevent camera movement while interacting with HTML overlays
+  const stopProp = (e) => e.stopPropagation();
   if (infoPanel) {
-    const stopProp = (e) => e.stopPropagation();
     ['mousedown', 'mousemove', 'mouseup', 'click', 'touchstart', 'touchmove', 'touchend', 'wheel', 'pointerdown', 'pointermove', 'pointerup'].forEach(evt => {
       infoPanel.addEventListener(evt, stopProp);
     });
+  }
+
+  if (inspectionPanel) {
+    ['mousedown', 'mouseup', 'click', 'touchstart', 'touchend', 'wheel', 'pointerdown', 'pointerup'].forEach(evt => {
+      inspectionPanel.addEventListener(evt, stopProp);
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // Inspection Toolbar Button Handlers (Phase 5)
+  // --------------------------------------------------------------------------
+  if (btnRotateLeft) {
+    btnRotateLeft.addEventListener('click', (e) => {
+      e.stopPropagation();
+      rotateCar(30);
+    });
+  }
+
+  if (btnRotateRight) {
+    btnRotateRight.addEventListener('click', (e) => {
+      e.stopPropagation();
+      rotateCar(-30);
+    });
+  }
+
+  if (btnZoomIn) {
+    btnZoomIn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      zoomIn();
+    });
+  }
+
+  if (btnZoomOut) {
+    btnZoomOut.addEventListener('click', (e) => {
+      e.stopPropagation();
+      zoomOut();
+    });
+  }
+
+  if (btnResetView) {
+    btnResetView.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetCarView();
+    });
+  }
+
+  if (btnExitInspection) {
+    btnExitInspection.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exitInspectionMode();
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // Mouse Drag / Touch Swipe to Rotate Car (Phase 5)
+  // --------------------------------------------------------------------------
+  if (dragZone) {
+    let isDragging = false;
+    let startX = 0;
+    let dragBaseY = 0;
+
+    dragZone.addEventListener('pointerdown', (e) => {
+      if (!activeInspectionCar) return;
+      isDragging = true;
+      startX = e.clientX;
+      dragBaseY = activeRotationY;
+      try { dragZone.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+
+    dragZone.addEventListener('pointermove', (e) => {
+      if (!isDragging || !activeInspectionCar) return;
+      const deltaX = e.clientX - startX;
+      // 0.4 degrees of yaw rotation per pixel moved
+      const newY = dragBaseY + (deltaX * 0.4);
+      const carEl = document.getElementById(`car-${activeInspectionCar.id}`);
+      if (carEl) {
+        carEl.setAttribute('rotation', `${activeInspectionCar.initialRotX} ${newY.toFixed(2)} ${activeInspectionCar.initialRotZ}`);
+        activeRotationY = newY;
+      }
+    });
+
+    const endDrag = (e) => {
+      if (isDragging) {
+        isDragging = false;
+        try { dragZone.releasePointerCapture(e.pointerId); } catch (err) {}
+      }
+    };
+
+    dragZone.addEventListener('pointerup', endDrag);
+    dragZone.addEventListener('pointercancel', endDrag);
   }
 
   // Bind clicks on platform bases and standing plaques
@@ -577,7 +977,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sceneEl) {
     sceneEl.addEventListener('loaded', () => {
       console.log('✅ AutoVerse VR Scene initialized.');
-      console.log('🏎️ 7-Vehicle Showroom Fleet & Specifications ready.');
+      console.log('🏎️ 7-Vehicle Fleet & 360° Inspection Controls ready.');
     });
 
     sceneEl.addEventListener('enter-vr', () => {
