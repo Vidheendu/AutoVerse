@@ -1272,5 +1272,201 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   12. Showroom Vehicle Quick Navigation Panel (Phase 7)
+   ========================================================================== */
+.showroom-nav-panel {
+  position: fixed;
+  top: 76px;
+  left: 24px;
+  width: 216px;
+  max-height: calc(100vh - 120px);
+  background: rgba(11, 15, 23, 0.90);
+  border: 1px solid rgba(56, 189, 248, 0.26);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.72), 0 0 25px rgba(56, 189, 248, 0.10);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 14px 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 450;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.showroom-nav-panel:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.78), 0 0 30px rgba(56, 189, 248, 0.16);
+}
+
+.showroom-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-compass-icon {
+  width: 15px;
+  height: 15px;
+  color: var(--accent-cyan);
+  flex-shrink: 0;
+}
+
+.nav-title {
+  font-family: var(--font-primary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #f8fafc;
+  text-transform: uppercase;
+}
+
+.btn-toggle-nav {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  transition: all var(--transition-fast);
+}
+
+.btn-toggle-nav:hover {
+  color: #ffffff;
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--accent-cyan);
+  transform: scale(1.08);
+}
+
+.showroom-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+  max-height: calc(100vh - 190px);
+  padding-right: 2px;
+}
+
+.showroom-nav-list::-webkit-scrollbar {
+  width: 4px;
+}
+.showroom-nav-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-full);
+}
+
+.nav-car-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.nav-car-btn:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #ffffff;
+  transform: translateX(3px);
+}
+
+.nav-car-btn.active {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: var(--accent-cyan);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+  transform: translateX(4px);
+}
+
+.nav-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.nav-car-btn:hover .nav-dot {
+  background: var(--accent-cyan);
+}
+
+.nav-car-btn.active .nav-dot {
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+}
+
+.nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
+/* Collapsed Navigation Panel State */
+.showroom-nav-panel.collapsed {
+  width: auto;
+  min-width: 130px;
+  padding: 10px 12px;
+}
+
+.showroom-nav-panel.collapsed .showroom-nav-list {
+  display: none;
+}
+
+/* Responsive UI Adjustments for Navigation (Phase 7) */
+@media (max-width: 900px) {
+  .showroom-nav-panel {
+    top: 72px;
+    left: 16px;
+    width: 190px;
+  }
+}
+
+@media (max-width: 640px) {
+  .showroom-nav-panel {
+    top: auto;
+    bottom: 84px;
+    left: 12px;
+    width: 180px;
+    max-height: 220px;
+    padding: 10px;
+    z-index: 450;
+  }
+
+  .nav-car-btn {
+    padding: 6px 8px;
+    font-size: 0.76rem;
+  }
+}
+
+
 
 

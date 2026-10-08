@@ -33,9 +33,9 @@
         <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2 10.9 2 11.2 2 11.5V16c0 .6.4 1 1 1h2m14 0a2 2 0 1 1-4 0m4 0h-4m-6 0a2 2 0 1 1-4 0m4 0H9"/>
         </svg>
-        <span class="brand-title">3D Car Showroom</span>
+        <span class="brand-title">AutoVerse VR</span>
         <span class="brand-separator">•</span>
-        <span class="brand-subtitle">AutoVerse</span>
+        <span class="brand-subtitle">3D Car Showroom</span>
       </div>
 
       <div class="hud-actions">
@@ -65,6 +65,53 @@
         </button>
       </div>
     </header>
+
+    <!-- Showroom Quick Vehicle Navigation Panel (Phase 7) -->
+    <nav id="showroom-nav-panel" class="showroom-nav-panel" aria-label="Showroom Vehicle Navigation">
+      <div class="showroom-nav-header">
+        <div class="nav-title-group">
+          <svg class="nav-compass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+          </svg>
+          <span class="nav-title">SHOWROOM</span>
+        </div>
+        <button class="btn-toggle-nav" id="btn-toggle-nav" title="Toggle navigation panel" aria-expanded="true">
+          <span class="toggle-icon">−</span>
+        </button>
+      </div>
+
+      <div class="showroom-nav-list" id="showroom-nav-list">
+        <button class="nav-car-btn" data-nav-car-id="bmw-m4" title="Focus camera on BMW M4">
+          <span class="nav-dot"></span>
+          <span class="nav-label">BMW M4</span>
+        </button>
+        <button class="nav-car-btn" data-nav-car-id="mercedes-amg-gt" title="Focus camera on Mercedes-AMG GT">
+          <span class="nav-dot"></span>
+          <span class="nav-label">Mercedes-AMG GT</span>
+        </button>
+        <button class="nav-car-btn" data-nav-car-id="porsche-911" title="Focus camera on Porsche 911">
+          <span class="nav-dot"></span>
+          <span class="nav-label">Porsche 911</span>
+        </button>
+        <button class="nav-car-btn" data-nav-car-id="audi-r8" title="Focus camera on Audi R8">
+          <span class="nav-dot"></span>
+          <span class="nav-label">Audi R8</span>
+        </button>
+        <button class="nav-car-btn" data-nav-car-id="lamborghini-huracan" title="Focus camera on Lamborghini Huracán">
+          <span class="nav-dot"></span>
+          <span class="nav-label">Lamborghini Huracán</span>
+        </button>
+        <button class="nav-car-btn" data-nav-car-id="range-rover-sport" title="Focus camera on Range Rover Sport">
+          <span class="nav-dot"></span>
+          <span class="nav-label">Range Rover Sport</span>
+        </button>
+        <button class="nav-car-btn" data-nav-car-id="ford-mustang" title="Focus camera on Ford Mustang">
+          <span class="nav-dot"></span>
+          <span class="nav-label">Ford Mustang</span>
+        </button>
+      </div>
+    </nav>
 
     <!-- Bottom HUD Bar: Quick Navigation Hints -->
     <footer class="hud-bottom-bar">
@@ -275,8 +322,8 @@
         </span>
       </div>
 
-      <h1 class="intro-title">3D CAR SHOWROOM</h1>
-      <p class="intro-subtitle">Explore the virtual showroom and discover our vehicles.</p>
+      <h1 class="intro-title">AUTOVERSE VR</h1>
+      <p class="intro-subtitle">AN IMMERSIVE 3D VIRTUAL CAR SHOWROOM</p>
 
       <!-- Controls Guide -->
       <div class="controls-guide">
@@ -385,10 +432,10 @@
       <!-- --------------------------------------------------------------------
            2. First-Person Camera Rig & Controls
            -------------------------------------------------------------------- -->
-      <!-- Camera Rig positioned at entrance aisle (15m) overlooking the entire 7-car fleet -->
+      <!-- Camera Rig positioned at entrance overview (16.2m) overlooking the showroom fleet -->
       <a-entity
         id="camera-rig"
-        position="0 0 15"
+        position="0 0 16.2"
         showroom-boundaries="minX: -18; maxX: 18; minZ: -18; maxZ: 18">
         
         <!-- First Person Head with standard A-Frame controls -->
@@ -402,54 +449,62 @@
       </a-entity>
 
       <!-- --------------------------------------------------------------------
-           3. Showroom Architecture: Floor, Ceiling, & Structural Grid
+           3. Showroom Architecture: Polished Floor, Ceiling, & Structural Grid (Phase 7)
            -------------------------------------------------------------------- -->
-      <!-- Polished Showroom Floor (Reflective slate finish) -->
+      <!-- Polished Showroom Floor (High-Grade Reflective Luxury Slate Finish) -->
       <a-plane
         id="showroom-floor"
         position="0 0 0"
         rotation="-90 0 0"
-        width="40"
-        height="40"
-        color="#151820"
-        roughness="0.25"
-        metalness="0.35">
+        width="44"
+        height="44"
+        color="#13161f"
+        roughness="0.2"
+        metalness="0.4">
       </a-plane>
 
-      <!-- Subtle Showroom Floor Runner / Tile Dividers -->
+      <!-- Central Polished Concourse Runner -->
       <a-plane
         position="0 0.01 0"
         rotation="-90 0 0"
-        width="12"
-        height="38"
-        color="#1a1e28"
-        roughness="0.3"
-        metalness="0.2">
+        width="14"
+        height="39"
+        color="#171b26"
+        roughness="0.22"
+        metalness="0.35">
       </a-plane>
+
+      <!-- Floor Metal Expansion Joint / Illuminated Inlay Strips -->
+      <a-plane position="-7 0.015 0" rotation="-90 0 0" width="0.08" height="39" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.45; roughness: 0.2; metalness: 0.8"></a-plane>
+      <a-plane position="7 0.015 0" rotation="-90 0 0" width="0.08" height="39" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.45; roughness: 0.2; metalness: 0.8"></a-plane>
+      <a-plane position="0 0.015 6" rotation="-90 0 0" width="38" height="0.06" color="#334155" roughness="0.3" metalness="0.7"></a-plane>
+      <a-plane position="0 0.015 -4" rotation="-90 0 0" width="38" height="0.06" color="#334155" roughness="0.3" metalness="0.7"></a-plane>
 
       <!-- Showroom Architectural Ceiling -->
       <a-plane
         id="showroom-ceiling"
         position="0 7 0"
         rotation="90 0 0"
-        width="40"
-        height="40"
+        width="44"
+        height="44"
         color="#0d0f14"
         roughness="0.9"
         metalness="0.1">
       </a-plane>
 
       <!-- Suspended Ceiling Architectural Light Beams / Rafts -->
-      <a-box position="0 6.9 0" width="36" height="0.15" depth="0.5" color="#1e232e"></a-box>
-      <a-box position="0 6.9 -8" width="36" height="0.15" depth="0.5" color="#1e232e"></a-box>
-      <a-box position="0 6.9 8" width="36" height="0.15" depth="0.5" color="#1e232e"></a-box>
+      <a-box position="0 6.9 0" width="38" height="0.15" depth="0.5" color="#1e232e"></a-box>
+      <a-box position="0 6.9 -8" width="38" height="0.15" depth="0.5" color="#1e232e"></a-box>
+      <a-box position="0 6.9 8" width="38" height="0.15" depth="0.5" color="#1e232e"></a-box>
+      <a-box position="0 6.9 14" width="38" height="0.15" depth="0.5" color="#1e232e"></a-box>
 
       <!-- Recessed Linear Light Strips on Ceiling -->
-      <a-box position="0 6.95 -3" width="10" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 1.0"></a-box>
-      <a-box position="-10 6.95 -8" width="6" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 0.8"></a-box>
-      <a-box position="10 6.95 -8" width="6" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 0.8"></a-box>
-      <a-box position="-10 6.95 4" width="6" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 0.8"></a-box>
-      <a-box position="10 6.95 4" width="6" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 0.8"></a-box>
+      <a-box position="0 6.95 -3" width="12" height="0.05" depth="0.35" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 1.0"></a-box>
+      <a-box position="-10 6.95 -8" width="8" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 0.85"></a-box>
+      <a-box position="10 6.95 -8" width="8" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 0.85"></a-box>
+      <a-box position="-10 6.95 4" width="8" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 0.85"></a-box>
+      <a-box position="10 6.95 4" width="8" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 0.85"></a-box>
+      <a-box position="0 6.95 12" width="10" height="0.05" depth="0.3" color="#ffffff" material="emissive: #ffffff; emissiveIntensity: 0.85"></a-box>
 
       <!-- Ceiling Spotlight Fixture Shells (visual light cans) -->
       <a-cylinder position="0 6.8 -3" radius="0.35" height="0.3" color="#111827"></a-cylinder>
@@ -457,44 +512,77 @@
       <a-cylinder position="5 6.6 2" radius="0.25" height="0.25" rotation="25 25 0" color="#111827"></a-cylinder>
 
       <!-- --------------------------------------------------------------------
+           Overhead Directional Architectural Signage (Phase 7)
+           -------------------------------------------------------------------- -->
+      <!-- Mid-Showroom Directional Sign Assembly -->
+      <a-entity position="0 5.4 6">
+        <!-- Structural Hanging Rods -->
+        <a-cylinder position="-3.5 0.7 0" radius="0.025" height="1.4" color="#334155" metalness="0.8"></a-cylinder>
+        <a-cylinder position="3.5 0.7 0" radius="0.025" height="1.4" color="#334155" metalness="0.8"></a-cylinder>
+        <!-- Directional Board Backing -->
+        <a-box position="0 0 0" width="7.6" height="0.7" depth="0.08" color="#0b1120" metalness="0.6"></a-box>
+        <!-- Blue Accent Border Strips -->
+        <a-box position="0 0.34 0" width="7.62" height="0.02" depth="0.09" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.8"></a-box>
+        <a-box position="0 -0.34 0" width="7.62" height="0.02" depth="0.09" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.8"></a-box>
+        <!-- Text Direction Labels -->
+        <a-text value="◀ SPORTS: BMW M4" align="left" position="-3.5 0.08 0.05" width="4.2" color="#f8fafc" font="aileronsemibold"></a-text>
+        <a-text value="▲ FLAGSHIP: LAMBORGHINI" align="center" position="0 0.08 0.05" width="3.6" color="#38bdf8" font="aileronsemibold"></a-text>
+        <a-text value="LUXURY: AMG GT ▶" align="right" position="3.5 0.08 0.05" width="4.2" color="#f8fafc" font="aileronsemibold"></a-text>
+        <a-text value="PORSCHE 911" align="left" position="-2.6 -0.16 0.05" width="3.2" color="#94a3b8" font="kelsonsans"></a-text>
+        <a-text value="CENTRAL STAGE" align="center" position="0 -0.16 0.05" width="3.0" color="#94a3b8" font="kelsonsans"></a-text>
+        <a-text value="AUDI R8" align="right" position="2.6 -0.16 0.05" width="3.2" color="#94a3b8" font="kelsonsans"></a-text>
+      </a-entity>
+
+      <!-- Rear Showroom Directional Sign Assembly -->
+      <a-entity position="0 5.4 -3.5">
+        <a-cylinder position="-3.0 0.7 0" radius="0.025" height="1.4" color="#334155" metalness="0.8"></a-cylinder>
+        <a-cylinder position="3.0 0.7 0" radius="0.025" height="1.4" color="#334155" metalness="0.8"></a-cylinder>
+        <a-box position="0 0 0" width="6.6" height="0.6" depth="0.08" color="#0b1120" metalness="0.6"></a-box>
+        <a-box position="0 0.29 0" width="6.62" height="0.02" depth="0.09" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.8"></a-box>
+        <a-box position="0 -0.29 0" width="6.62" height="0.02" depth="0.09" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.8"></a-box>
+        <a-text value="◀ LUXURY SUV: RANGE ROVER" align="left" position="-3.0 0 0.05" width="4.4" color="#f8fafc" font="aileronsemibold"></a-text>
+        <a-text value="MUSCLE: FORD MUSTANG ▶" align="right" position="3.0 0 0.05" width="4.4" color="#f8fafc" font="aileronsemibold"></a-text>
+      </a-entity>
+
+      <!-- --------------------------------------------------------------------
            4. Four Walls & Architectural Accents
            -------------------------------------------------------------------- -->
       <!-- Back Wall (Main Feature / Brand Display Wall) -->
       <a-entity id="back-wall-assembly" position="0 3.5 -20">
         <!-- Main wall surface -->
-        <a-plane width="40" height="7" color="#13161f" roughness="0.6" metalness="0.2"></a-plane>
+        <a-plane width="44" height="7" color="#13161f" roughness="0.6" metalness="0.2"></a-plane>
 
         <!-- Architectural dark slat panel backing -->
-        <a-box position="0 0 0.05" width="28" height="5.6" depth="0.1" color="#1c212c"></a-box>
+        <a-box position="0 0 0.05" width="30" height="5.6" depth="0.1" color="#1c212c"></a-box>
 
-        <!-- Large Showroom Sign Backing Plate -->
-        <a-box position="0 1.2 0.15" width="18" height="1.8" depth="0.08" color="#0e1118" material="roughness: 0.2; metalness: 0.5"></a-box>
-        <!-- Blue Accent Neon Glow Border around sign -->
-        <a-box position="0 1.2 0.16" width="18.2" height="0.04" depth="0.05" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.8"></a-box>
-        <a-box position="0 0.3 0.16" width="18.2" height="0.04" depth="0.05" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.8"></a-box>
+        <!-- Prominent Showroom Sign Backing Plate (Phase 7) -->
+        <a-box position="0 1.2 0.15" width="20" height="1.8" depth="0.08" color="#0e1118" material="roughness: 0.2; metalness: 0.5"></a-box>
+        <!-- Blue Accent Neon Glow Border around sign with subtle ambient pulsation -->
+        <a-box position="0 1.2 0.16" width="20.2" height="0.04" depth="0.05" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.85" animation="property: material.emissiveIntensity; from: 0.65; to: 1.0; dir: alternate; dur: 3200; loop: true; easing: easeInOutSine"></a-box>
+        <a-box position="0 0.3 0.16" width="20.2" height="0.04" depth="0.05" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.85" animation="property: material.emissiveIntensity; from: 0.65; to: 1.0; dir: alternate; dur: 3200; loop: true; easing: easeInOutSine"></a-box>
 
-        <!-- Large Showroom Sign: Main Brand Text -->
+        <!-- Prominent Showroom Sign: AUTOVERSE VR (Phase 7 Requirement) -->
         <a-text
-          value="3D CAR SHOWROOM"
+          value="AUTOVERSE VR"
           align="center"
-          position="0 1.45 0.22"
-          width="24"
+          position="0 1.5 0.22"
+          width="26"
           color="#f8fafc"
           font="aileronsemibold">
         </a-text>
 
-        <!-- Subtitle on Back Wall Sign -->
+        <!-- Subtitle: AN IMMERSIVE 3D VIRTUAL CAR SHOWROOM (Phase 7 Requirement) -->
         <a-text
-          value="AUTOVERSE MOTORS - FLAGSHIP EXPERIENCE"
+          value="AN IMMERSIVE 3D VIRTUAL CAR SHOWROOM"
           align="center"
           position="0 0.8 0.22"
-          width="12"
+          width="13"
           color="#38bdf8"
           font="kelsonsans">
         </a-text>
 
         <!-- Recessed Accent Wall Wash Light -->
-        <a-light type="point" color="#38bdf8" intensity="0.5" distance="8" position="0 1.2 0.8"></a-light>
+        <a-light type="point" color="#38bdf8" intensity="0.6" distance="9" position="0 1.2 0.8"></a-light>
       </a-entity>
 
       <!-- Front Wall (Entrance Area) -->
@@ -513,9 +601,10 @@
         <a-box position="-7.5 -0.7 0.05" width="0.2" height="5.6" depth="0.15" color="#1e293b"></a-box>
         <a-box position="7.5 -0.7 0.05" width="0.2" height="5.6" depth="0.15" color="#1e293b"></a-box>
         
-        <!-- Entrance Welcome Sign above door -->
-        <a-box position="0 2.2 0.1" width="10" height="0.6" depth="0.05" color="#0f172a"></a-box>
-        <a-text value="WELCOME TO AUTOVERSE" align="center" position="0 2.2 0.15" width="10" color="#e2e8f0"></a-text>
+        <!-- Entrance Welcome Sign above door (Phase 7 Requirement) -->
+        <a-box position="0 2.2 0.1" width="11" height="0.6" depth="0.05" color="#0f172a"></a-box>
+        <a-text value="WELCOME TO AUTOVERSE VR" align="center" position="0 2.22 0.15" width="10" color="#f8fafc" font="aileronsemibold"></a-text>
+        <a-text value="FLAGSHIP 3D CAR SHOWROOM" align="center" position="0 1.95 0.15" width="6" color="#38bdf8" font="kelsonsans"></a-text>
       </a-entity>
 
       <!-- Entrance Floor Mat & Welcome Threshold -->
@@ -535,6 +624,32 @@
         width="6"
         color="#64748b">
       </a-text>
+
+      <!-- --------------------------------------------------------------------
+           Showroom Reception & Information Concierge Area (Phase 7)
+           -------------------------------------------------------------------- -->
+      <a-entity id="reception-area" position="5.2 0 14.8" rotation="0 -35 0">
+        <!-- Reception Desk Base -->
+        <a-box position="0 0.5 0" width="3.2" height="1.0" depth="1.0" color="#181d28" roughness="0.25" metalness="0.5"></a-box>
+        <!-- Desk Top Counter -->
+        <a-box position="0 1.02 0" width="3.4" height="0.05" depth="1.1" color="#0f172a" roughness="0.15" metalness="0.6"></a-box>
+        <!-- Cyan Accent Under-Counter LED Strip -->
+        <a-box position="0 0.98 0.52" width="3.2" height="0.03" depth="0.04" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+        <!-- Front Desk Logo Badge -->
+        <a-box position="0 0.6 0.52" width="2.4" height="0.32" depth="0.03" color="#0b1120"></a-box>
+        <a-text value="AUTOVERSE VR" align="center" position="0 0.66 0.55" width="4.2" color="#ffffff" font="aileronsemibold"></a-text>
+        <a-text value="CONCIERGE & INFORMATION" align="center" position="0 0.52 0.55" width="2.4" color="#38bdf8" font="kelsonsans"></a-text>
+
+        <!-- Standing Information Display Terminal Screen -->
+        <a-entity position="0 1.05 0">
+          <a-box position="0 0.45 0" width="2.2" height="0.8" depth="0.06" color="#0b1120" metalness="0.7"></a-box>
+          <a-box position="0 0.86 0" width="2.22" height="0.02" depth="0.07" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+          
+          <a-text value="WELCOME TO AUTOVERSE VR" align="center" position="0 0.68 0.04" width="3.2" color="#38bdf8" font="aileronsemibold"></a-text>
+          <a-text value="Explore our collection of premium vehicles in an immersive virtual environment." align="center" position="0 0.48 0.04" width="2.1" color="#f8fafc"></a-text>
+          <a-text value="Use the navigation panel to explore each vehicle." align="center" position="0 0.28 0.04" width="1.9" color="#94a3b8"></a-text>
+        </a-entity>
+      </a-entity>
 
       <!-- Left Wall (Panoramic Showroom Window & Architectural Columns) -->
       <a-entity id="left-wall-assembly" position="-20 3.5 0" rotation="0 90 0">
