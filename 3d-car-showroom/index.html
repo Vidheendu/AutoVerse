@@ -76,6 +76,14 @@
         <span><strong>VR:</strong> Use bottom-right VR icon</span>
       </div>
     </footer>
+
+    <!-- Car Selection Toast Notification (Phase 2) -->
+    <div id="car-toast" class="toast-notification" aria-live="polite">
+      <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2 10.9 2 11.2 2 11.5V16c0 .6.4 1 1 1h2m14 0a2 2 0 1 1-4 0m4 0h-4m-6 0a2 2 0 1 1-4 0m4 0H9"/>
+      </svg>
+      <span id="toast-text">BMW M4 selected</span>
+    </div>
   </div>
 
   <!-- Introductory Welcome Modal Dialog -->
@@ -129,34 +137,35 @@
     renderer="antialias: true; colorManagement: true;"
     vr-mode-ui="enabled: true"
     loading-screen="dotsColor: #38bdf8; backgroundColor: #0a0c10"
-    cursor="rayOrigin: mouse">
+    cursor="rayOrigin: mouse"
+    raycaster="objects: .clickable">
 
       <!-- --------------------------------------------------------------------
-           1. Lighting Setup
+           1. Lighting Setup (Calibrated for Luxury Automotive Finish)
            -------------------------------------------------------------------- -->
-      <!-- Soft Ambient Light (prevents deep harsh shadows) -->
-      <a-light type="ambient" color="#475569" intensity="0.75"></a-light>
+      <!-- Soft Ambient Light (Prevents harsh shadows on underside & wheel wells) -->
+      <a-light type="ambient" color="#64748b" intensity="0.85"></a-light>
 
-      <!-- Directional Key Light (simulates skylight / showroom architectural lights) -->
-      <a-light type="directional" color="#f8fafc" intensity="0.9" position="10 18 8"></a-light>
+      <!-- Directional Key Light (Simulates diffused showroom architectural daylight) -->
+      <a-light type="directional" color="#f8fafc" intensity="1.0" position="10 18 8"></a-light>
 
-      <!-- Central Platform Spotlights (Dramatic luxury automotive lighting) -->
+      <!-- Central Platform Spotlights (Dramatic automotive bodyline highlights) -->
       <!-- Overhead Spot directly pointing down at the central platform -->
       <a-light
         type="spot"
         color="#ffffff"
-        intensity="2.4"
+        intensity="2.2"
         position="0 6.8 -3"
         target="#central-platform"
         angle="45"
-        penumbra="0.6">
+        penumbra="0.5">
       </a-light>
 
       <!-- Angled Accent Spot (Front-Left) -->
       <a-light
         type="spot"
         color="#e0f2fe"
-        intensity="1.5"
+        intensity="1.6"
         position="-5 6.5 2"
         target="#central-platform"
         angle="40"
@@ -167,11 +176,22 @@
       <a-light
         type="spot"
         color="#f1f5f9"
-        intensity="1.5"
+        intensity="1.6"
         position="5 6.5 2"
         target="#central-platform"
         angle="40"
         penumbra="0.5">
+      </a-light>
+
+      <!-- Front Car Fill Light (Highlights kidney grille, headlights, and front bumper) -->
+      <a-light
+        type="spot"
+        color="#e2e8f0"
+        intensity="1.4"
+        position="0 4.2 3.5"
+        target="#central-platform"
+        angle="45"
+        penumbra="0.6">
       </a-light>
 
       <!-- Entrance Downlight -->
@@ -186,10 +206,10 @@
       <!-- --------------------------------------------------------------------
            2. First-Person Camera Rig & Controls
            -------------------------------------------------------------------- -->
-      <!-- Camera Rig positioned at the entrance facing towards the center platform -->
+      <!-- Camera Rig positioned at 7.5m facing the central display platform -->
       <a-entity
         id="camera-rig"
-        position="0 0 12"
+        position="0 0 7.5"
         showroom-boundaries="minX: -18; maxX: 18; minZ: -18; maxZ: 18">
         
         <!-- First Person Head with standard A-Frame controls -->
@@ -435,57 +455,50 @@
           color="#38bdf8">
         </a-text>
 
-        <!-- ------------------------------------------------------------------
-             Temporary Simple Placeholder Object on Central Platform
-             (NOTE: As requested, strictly a placeholder. No final car model yet.)
-             ------------------------------------------------------------------ -->
-        <a-entity id="main-car-placeholder" position="0 0.25 0">
-          <!-- Sleek Architectural Showcase Plinth -->
-          <a-box
-            position="0 0.35 0"
-            width="3.8"
-            height="0.7"
-            depth="2.0"
-            color="#141923"
-            roughness="0.4"
-            metalness="0.3">
-          </a-box>
+        <!-- ==================================================================
+             Phase 2: BMW M4 3D Vehicle Model (Reusable car-display Component)
+             ================================================================== -->
+        <a-entity
+          id="main-vehicle"
+          car-display="carId: bmw-m4">
+        </a-entity>
 
-          <!-- Top Glowing Accent Frame -->
-          <a-box position="0 0.72 0" width="3.6" height="0.04" depth="1.8" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.6"></a-box>
+        <!-- ==================================================================
+             Car Information Label Plaque (Compact & Professional)
+             ================================================================== -->
+        <a-entity id="car-info-plaque" position="2.8 0 2.6" rotation="0 -35 0">
+          <!-- Plaque Stand Stem -->
+          <a-cylinder radius="0.03" height="0.85" position="0 0.425 0" color="#1e293b" roughness="0.3" metalness="0.7"></a-cylinder>
+          <!-- Plaque Heavy Base Pad -->
+          <a-cylinder radius="0.22" height="0.04" position="0 0.02 0" color="#0f172a" roughness="0.4" metalness="0.5"></a-cylinder>
 
-          <!-- Stylized Geometric Vehicle Silhouette Placeholder -->
-          <a-box
-            position="0 1.15 0"
-            width="3.2"
-            height="0.8"
-            depth="1.5"
-            color="#222938"
-            material="roughness: 0.2; metalness: 0.7; opacity: 0.85; transparent: true">
-          </a-box>
-          <a-box
-            position="0.2 1.6 0"
-            width="1.8"
-            height="0.45"
-            depth="1.3"
-            color="#1e2533"
-            material="roughness: 0.1; metalness: 0.8; opacity: 0.75; transparent: true">
-          </a-box>
+          <!-- Angled Info Board Header -->
+          <a-entity position="0 0.88 0" rotation="-28 0 0">
+            <!-- Board Backplate -->
+            <a-box width="1.1" height="0.6" depth="0.03" color="#0b1120" roughness="0.2" metalness="0.7"></a-box>
+            <!-- Glowing Cyan Accent Top Border -->
+            <a-box width="1.12" height="0.02" depth="0.035" position="0 0.3 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+            
+            <!-- Car Name Title -->
+            <a-text
+              value="BMW M4"
+              align="center"
+              position="0 0.1 0.02"
+              width="3.2"
+              color="#ffffff"
+              font="aileronsemibold">
+            </a-text>
 
-          <!-- Front Info Plate on the Placeholder -->
-          <a-plane
-            position="0 0.35 1.01"
-            width="3.2"
-            height="0.5"
-            color="#0b0f17">
-          </a-plane>
-          <a-text
-            value="[ VEHICLE DISPLAY BAY ]\nRESERVED FOR MAIN CAR (PHASE 2)"
-            align="center"
-            position="0 0.35 1.03"
-            width="3"
-            color="#38bdf8">
-          </a-text>
+            <!-- Car Category Subtitle -->
+            <a-text
+              value="Sports Coupe"
+              align="center"
+              position="0 -0.12 0.02"
+              width="2.3"
+              color="#38bdf8"
+              font="kelsonsans">
+            </a-text>
+          </a-entity>
         </a-entity>
       </a-entity>
 
