@@ -23,6 +23,27 @@
 <body>
 
   <!-- ========================================================================
+       Professional WebXR Loading Experience (Phase 8)
+       ======================================================================== -->
+  <div id="showroom-loading-screen" class="showroom-loading-screen" aria-live="polite">
+    <div class="loading-container">
+      <div class="loading-brand-pill">
+        <svg class="loading-car-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2 10.9 2 11.2 2 11.5V16c0 .6.4 1 1 1h2m14 0a2 2 0 1 1-4 0m4 0h-4m-6 0a2 2 0 1 1-4 0m4 0H9"/>
+        </svg>
+        <span>AUTOVERSE VR</span>
+      </div>
+      <div class="loading-spinner-ring"></div>
+      <h2 class="loading-title">LOADING AUTOVERSE VR...</h2>
+      <p class="loading-sub" id="loading-sub-text">Loading vehicles...</p>
+      <div class="loading-bar-wrap">
+        <div class="loading-bar-fill" id="loading-bar-fill"></div>
+      </div>
+      <span class="loading-footer-hint">Immersive 3D Virtual Showroom</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================
        2D USER INTERFACE OVERLAY
        ======================================================================== -->
   <div class="ui-layer">
@@ -40,7 +61,7 @@
 
       <div class="hud-actions">
         <!-- VR Ready Status Badge -->
-        <div class="vr-ready-badge" id="vr-badge">
+        <div class="vr-ready-badge" id="vr-badge" title="Click to enter WebXR VR mode">
           <span class="pulse-dot"></span>
           <span id="vr-status-text">VR Ready</span>
         </div>
@@ -65,6 +86,25 @@
         </button>
       </div>
     </header>
+
+    <!-- VR Mode Available Banner / Notification (Phase 8) -->
+    <div id="vr-available-banner" class="vr-available-banner" role="status" aria-live="polite">
+      <div class="vr-banner-content">
+        <div class="vr-banner-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 7H3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h4l3 3 3-3h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+            <circle cx="8" cy="12" r="2"></circle>
+            <circle cx="16" cy="12" r="2"></circle>
+          </svg>
+        </div>
+        <div class="vr-banner-text">
+          <span class="vr-banner-title">VR MODE AVAILABLE</span>
+          <span class="vr-banner-subtitle">Enter VR to explore the showroom immersively.</span>
+        </div>
+        <button id="btn-enter-vr-banner" class="btn-vr-action" title="Enter WebXR Virtual Reality">Enter VR</button>
+        <button id="btn-dismiss-vr-banner" class="btn-dismiss-vr" title="Dismiss notification" aria-label="Dismiss VR notification">✕</button>
+      </div>
+    </div>
 
     <!-- Showroom Quick Vehicle Navigation Panel (Phase 7) -->
     <nav id="showroom-nav-panel" class="showroom-nav-panel" aria-label="Showroom Vehicle Navigation">
@@ -325,29 +365,30 @@
       <h1 class="intro-title">AUTOVERSE VR</h1>
       <p class="intro-subtitle">AN IMMERSIVE 3D VIRTUAL CAR SHOWROOM</p>
 
-      <!-- Controls Guide -->
+      <!-- Controls Guide (Phase 8 Accessibility & Usability) -->
       <div class="controls-guide">
-        <div class="controls-guide-title">Navigation Controls</div>
+        <div class="controls-guide-title">Navigation & Exploration Guide</div>
         
         <div class="control-item">
-          <span class="control-label">Move / Walk:</span>
+          <span class="control-label">Desktop Mode:</span>
+          <span class="control-desc">Use mouse and keyboard to explore.</span>
           <div class="key-tags">
             <span class="kbd-badge">W</span>
             <span class="kbd-badge">A</span>
             <span class="kbd-badge">S</span>
             <span class="kbd-badge">D</span>
-            <span class="kbd-badge">↑←↓→</span>
+            <span class="kbd-badge">Drag Mouse</span>
           </div>
         </div>
 
         <div class="control-item">
-          <span class="control-label">Look Around:</span>
-          <span class="kbd-badge">Click & Drag Mouse</span>
-        </div>
-
-        <div class="control-item">
-          <span class="control-label">Virtual Reality:</span>
-          <span class="kbd-badge">WebXR Headset Compatible</span>
+          <span class="control-label">VR Mode:</span>
+          <span class="control-desc">Put on your VR headset and use your controllers to explore.</span>
+          <div class="key-tags">
+            <span class="kbd-badge">Trigger Click</span>
+            <span class="kbd-badge">Thumbstick Walk</span>
+            <span class="kbd-badge">Snap Turn</span>
+          </div>
         </div>
       </div>
 
@@ -430,13 +471,14 @@
       </a-light>
 
       <!-- --------------------------------------------------------------------
-           2. First-Person Camera Rig & Controls
+           2. First-Person Camera Rig & WebXR VR Controller Setup (Phase 8)
            -------------------------------------------------------------------- -->
       <!-- Camera Rig positioned at entrance overview (16.2m) overlooking the showroom fleet -->
       <a-entity
         id="camera-rig"
         position="0 0 16.2"
-        showroom-boundaries="minX: -18; maxX: 18; minZ: -18; maxZ: 18">
+        showroom-boundaries="minX: -18; maxX: 18; minZ: -18; maxZ: 18"
+        vr-controller-locomotion="moveSpeed: 3.2; snapAngle: 30">
         
         <!-- First Person Head with standard A-Frame controls -->
         <a-entity
@@ -445,6 +487,30 @@
           position="0 1.6 0"
           look-controls="pointerLockEnabled: false"
           wasd-controls="acceleration: 28; fly: false">
+          
+          <!-- Fallback Head Gaze Cursor (for Cardboard / 3DoF VR viewers without tracked controllers) -->
+          <a-cursor
+            id="vr-gaze-cursor"
+            position="0 0 -1.2"
+            geometry="primitive: ring; radiusInner: 0.012; radiusOuter: 0.02"
+            material="color: #38bdf8; shader: flat; opacity: 0.75"
+            raycaster="objects: .clickable; far: 25"
+            visible="false">
+          </a-cursor>
+        </a-entity>
+
+        <!-- Left 6DoF Tracked Controller (Laser raycaster & locomotion) -->
+        <a-entity
+          id="left-hand-controller"
+          laser-controls="hand: left"
+          raycaster="objects: .clickable; lineColor: #38bdf8; lineOpacity: 0.85; far: 25">
+        </a-entity>
+
+        <!-- Right 6DoF Tracked Controller (Laser raycaster & snap turn) -->
+        <a-entity
+          id="right-hand-controller"
+          laser-controls="hand: right"
+          raycaster="objects: .clickable; lineColor: #38bdf8; lineOpacity: 0.85; far: 25">
         </a-entity>
       </a-entity>
 
@@ -976,34 +1042,68 @@
       </a-entity>
 
       <!-- ------------------------------------------------------------------
-           6. 3D VR Information Board (In-World Display for WebXR Headsets)
+           6. 3D VR Information Board (In-World Display for WebXR Headsets - Phase 8)
            ------------------------------------------------------------------ -->
       <a-entity id="vr-info-board" visible="false" position="0 0 0">
         <!-- Floating Glassmorphism Backing -->
-        <a-plane width="2.8" height="2.2" color="#0b1120" material="opacity: 0.95; transparent: true; roughness: 0.2; metalness: 0.7"></a-plane>
-        <a-box position="0 1.09 0.01" width="2.82" height="0.04" depth="0.02" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+        <a-plane width="3.2" height="2.8" color="#0b1120" material="opacity: 0.96; transparent: true; roughness: 0.2; metalness: 0.7"></a-plane>
+        <a-box position="0 1.39 0.01" width="3.22" height="0.04" depth="0.02" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
         
         <!-- Header: Vehicle Name & Category -->
-        <a-text id="vr-text-name" value="BMW M4" align="center" position="0 0.82 0.03" width="5.2" color="#ffffff" font="aileronsemibold"></a-text>
-        <a-text id="vr-text-category" value="Sports Coupe" align="center" position="0 0.62 0.03" width="3.4" color="#38bdf8" font="kelsonsans"></a-text>
-        <a-text id="vr-text-price" value="₹1.50 Crore" align="center" position="0 0.42 0.03" width="4.2" color="#10b981" font="aileronsemibold"></a-text>
+        <a-text id="vr-text-name" value="BMW M4" align="center" position="0 1.12 0.03" width="5.4" color="#ffffff" font="aileronsemibold"></a-text>
+        <a-text id="vr-text-category" value="Sports Coupe" align="center" position="0 0.92 0.03" width="3.6" color="#38bdf8" font="kelsonsans"></a-text>
+        <a-text id="vr-text-price" value="₹1.50 Crore" align="center" position="0 0.72 0.03" width="4.4" color="#10b981" font="aileronsemibold"></a-text>
         
         <!-- Divider Line -->
-        <a-plane position="0 0.28 0.02" width="2.4" height="0.01" color="#334155"></a-plane>
+        <a-plane position="0 0.58 0.02" width="2.8" height="0.01" color="#334155"></a-plane>
         
-        <!-- Specs Column 1 -->
-        <a-text id="vr-text-engine" value="Engine: 3.0L Twin-Turbo" align="left" position="-1.2 0.12 0.03" width="2.6" color="#e2e8f0"></a-text>
-        <a-text id="vr-text-power" value="Power: 503 HP" align="left" position="-1.2 -0.10 0.03" width="2.6" color="#e2e8f0"></a-text>
-        <a-text id="vr-text-trans" value="Trans: 8-Speed Auto" align="left" position="-1.2 -0.32 0.03" width="2.6" color="#e2e8f0"></a-text>
-        <a-text id="vr-text-fuel" value="Fuel: Petrol" align="left" position="-1.2 -0.54 0.03" width="2.6" color="#e2e8f0"></a-text>
+        <!-- Specs Row 1 -->
+        <a-text id="vr-text-engine" value="Engine: 3.0L Twin-Turbo" align="left" position="-1.35 0.42 0.03" width="2.8" color="#e2e8f0"></a-text>
+        <a-text id="vr-text-power" value="Power: 503 HP" align="left" position="0.1 0.42 0.03" width="2.8" color="#e2e8f0"></a-text>
         
-        <!-- Specs Column 2 -->
-        <a-text id="vr-text-speed" value="Top Speed: 250 km/h" align="left" position="0.15 0.12 0.03" width="2.6" color="#e2e8f0"></a-text>
-        <a-text id="vr-text-accel" value="0-100: 3.9 seconds" align="left" position="0.15 -0.10 0.03" width="2.6" color="#e2e8f0"></a-text>
+        <!-- Specs Row 2 -->
+        <a-text id="vr-text-speed" value="Top Speed: 250 km/h" align="left" position="-1.35 0.22 0.03" width="2.8" color="#e2e8f0"></a-text>
+        <a-text id="vr-text-accel" value="0-100: 3.9 seconds" align="left" position="0.1 0.22 0.03" width="2.8" color="#e2e8f0"></a-text>
+
+        <!-- Divider Line -->
+        <a-plane position="0 0.06 0.02" width="2.8" height="0.01" color="#334155"></a-plane>
+
+        <!-- In-VR Color Customization Swatches Section (Phase 8) -->
+        <a-text value="EXTERIOR COLOR" align="center" position="0 -0.06 0.03" width="2.6" color="#94a3b8" font="kelsonsans"></a-text>
         
-        <!-- VR Interactive Close Button -->
-        <a-entity id="vr-close-btn" class="clickable" position="0 -0.85 0.03">
-          <a-box width="1.0" height="0.24" depth="0.04" color="#ef4444" material="roughness: 0.4"></a-box>
+        <a-entity position="0 -0.24 0.03">
+          <!-- Black Swatch -->
+          <a-cylinder class="clickable vr-color-swatch" data-vr-color="#111111" radius="0.09" height="0.04" rotation="90 0 0" position="-0.72 0 0" color="#111111" metalness="0.8" roughness="0.2"></a-cylinder>
+          <!-- White Swatch -->
+          <a-cylinder class="clickable vr-color-swatch" data-vr-color="#F5F5F5" radius="0.09" height="0.04" rotation="90 0 0" position="-0.36 0 0" color="#F5F5F5" metalness="0.5" roughness="0.3"></a-cylinder>
+          <!-- Red Swatch -->
+          <a-cylinder class="clickable vr-color-swatch" data-vr-color="#C62828" radius="0.09" height="0.04" rotation="90 0 0" position="0 0 0" color="#C62828" metalness="0.7" roughness="0.25"></a-cylinder>
+          <!-- Blue Swatch -->
+          <a-cylinder class="clickable vr-color-swatch" data-vr-color="#1565C0" radius="0.09" height="0.04" rotation="90 0 0" position="0.36 0 0" color="#1565C0" metalness="0.7" roughness="0.25"></a-cylinder>
+          <!-- Silver Swatch -->
+          <a-cylinder class="clickable vr-color-swatch" data-vr-color="#B0B0B0" radius="0.09" height="0.04" rotation="90 0 0" position="0.72 0 0" color="#B0B0B0" metalness="0.9" roughness="0.15"></a-cylinder>
+        </a-entity>
+
+        <!-- Divider Line -->
+        <a-plane position="0 -0.42 0.02" width="2.8" height="0.01" color="#334155"></a-plane>
+
+        <!-- In-VR Inspection Toolbar Buttons (Phase 8) -->
+        <a-entity position="0 -0.66 0.03">
+          <!-- Rotate 30° Button -->
+          <a-entity id="vr-btn-rotate" class="clickable" position="-0.75 0 0">
+            <a-box width="1.1" height="0.24" depth="0.04" color="#1e293b" material="roughness: 0.3; metalness: 0.5"></a-box>
+            <a-text value="↺ Rotate 30°" align="center" position="0 0 0.03" width="2.4" color="#38bdf8"></a-text>
+          </a-entity>
+          <!-- Reset View Button -->
+          <a-entity id="vr-btn-reset-view" class="clickable" position="0.75 0 0">
+            <a-box width="1.1" height="0.24" depth="0.04" color="#1e293b" material="roughness: 0.3; metalness: 0.5"></a-box>
+            <a-text value="Reset View" align="center" position="0 0 0.03" width="2.4" color="#f8fafc"></a-text>
+          </a-entity>
+        </a-entity>
+
+        <!-- VR Close Button -->
+        <a-entity id="vr-close-btn" class="clickable" position="0 -1.05 0.03">
+          <a-box width="1.2" height="0.24" depth="0.04" color="#ef4444" material="roughness: 0.4"></a-box>
           <a-text value="Close" align="center" position="0 0 0.03" width="2.6" color="#ffffff"></a-text>
         </a-entity>
       </a-entity>

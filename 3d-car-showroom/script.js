@@ -1038,16 +1038,64 @@ function registerCarDisplayComponent() {
             applyCarColor(this.carData.id, this.carData.currentColor || this.carData.defaultColor, false);
           }
           console.log(`✅ [${this.carData.name}] 3D model loaded successfully.`);
+          notifyModelSettled(this.carData.id, true);
         });
 
         // Handle missing model gracefully (logged for student/evaluator information)
         this.el.addEventListener('model-error', (err) => {
           console.info(`ℹ️ [${this.carData.name}] Model file not found at "${this.carData.model}". Place "${this.carData.id}.glb" in assets/cars/ to render this vehicle.`);
+          notifyModelSettled(this.carData.id, false);
         });
       }
     });
   }
 }
+
+// ----------------------------------------------------------------------------
+// Model Loading Progress Tracker (Phase 8)
+// ----------------------------------------------------------------------------
+let settledModelsCount = 0;
+const totalShowroomModels = cars.length; // 7
+
+function notifyModelSettled(carId, isSuccess) {
+  settledModelsCount++;
+  const fill = document.getElementById('loading-bar-fill');
+  const subText = document.getElementById('loading-sub-text');
+  const percent = Math.min(100, Math.round((settledModelsCount / totalShowroomModels) * 100));
+
+  if (fill) {
+    fill.style.width = `${percent}%`;
+  }
+  if (subText) {
+    subText.textContent = `Loading vehicles (${settledModelsCount}/${totalShowroomModels})...`;
+  }
+
+  if (settledModelsCount >= totalShowroomModels) {
+    dismissLoadingScreen();
+  }
+}
+
+function dismissLoadingScreen() {
+  const loadingScreen = document.getElementById('showroom-loading-screen');
+  if (!loadingScreen || loadingScreen.classList.contains('fade-out')) return;
+
+  const subText = document.getElementById('loading-sub-text');
+  const fill = document.getElementById('loading-bar-fill');
+  if (fill) fill.style.width = '100%';
+  if (subText) subText.textContent = 'Welcome to AutoVerse VR';
+
+  setTimeout(() => {
+    loadingScreen.classList.add('fade-out');
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+    }, 600);
+  }, 450);
+}
+
+// Safety timeout: dismiss loading screen after 3.8s max so user is never blocked even if assets take time or fail
+setTimeout(() => {
+  dismissLoadingScreen();
+}, 3800);
 
 // ----------------------------------------------------------------------------
 // 7. Custom A-Frame Component: Showroom Boundary Limiter
@@ -1081,9 +1129,115 @@ function registerShowroomBoundaries() {
   }
 }
 
+// ----------------------------------------------------------------------------
+// 8. Custom A-Frame Component: VR Controller Locomotion & Snap Turn (Phase 8)
+// ----------------------------------------------------------------------------
+function registerVrControllerLocomotion() {
+  if (typeof AFRAME !== 'undefined' && !AFRAME.components['vr-controller-locomotion']) {
+    AFRAME.registerComponent('vr-controller-locomotion', {
+      schema: {
+        moveSpeed: { type: 'number', default: 3.2 },
+        snapAngle: { type: 'number', default: 30 }
+      },
+
+      init: function () {
+        this.snapCooldown = 0;
+        this.headCamera = document.getElementById('camera-head');
+        this.leftController = document.getElementById('left-hand-controller');
+        this.rightController = document.getElementById('right-hand-controller');
+
+        // Controller axis event listeners
+        if (this.rightController) {
+          this.rightController.addEventListener('axismove', (evt) => {
+            const axis = evt.detail.axis;
+            if (axis && axis.length >= 2) {
+              const x = axis[0] !== undefined ? axis[0] : (axis[2] || 0);
+              if (Math.abs(x) > 0.6 && this.snapCooldown <= 0) {
+                this.snapTurn(x > 0 ? -this.data.snapAngle : this.data.snapAngle);
+                this.snapCooldown = 0.35;
+              }
+            }
+          });
+        }
+      },
+
+      tick: function (time, delta) {
+        if (!this.el.sceneEl || !this.el.sceneEl.is('vr-mode')) return;
+        const dt = Math.min((delta || 16) / 1000, 0.1);
+
+        if (this.snapCooldown > 0) {
+          this.snapCooldown -= dt;
+        }
+
+        // Direct Gamepads polling for WebXR 6DoF controllers
+        const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+        for (let i = 0; i < gamepads.length; i++) {
+          const gp = gamepads[i];
+          if (!gp || !gp.axes || gp.axes.length < 2) continue;
+
+          const stickX = Math.abs(gp.axes[2]) > 0.1 ? gp.axes[2] : (Math.abs(gp.axes[0]) > 0.12 ? gp.axes[0] : 0);
+          const stickY = Math.abs(gp.axes[3]) > 0.1 ? gp.axes[3] : (Math.abs(gp.axes[1]) > 0.12 ? gp.axes[1] : 0);
+
+          if (gp.hand === 'left' || (!gp.hand && i === 0)) {
+            // Left Stick: Locomotion / Translation
+            if (Math.abs(stickX) > 0.12 || Math.abs(stickY) > 0.12) {
+              this.moveRig(stickX, stickY, dt);
+            }
+          } else if (gp.hand === 'right' || (!gp.hand && i === 1)) {
+            // Right Stick: Snap Turning
+            if (this.snapCooldown <= 0 && Math.abs(stickX) > 0.55) {
+              this.snapTurn(stickX > 0 ? -this.data.snapAngle : this.data.snapAngle);
+              this.snapCooldown = 0.35;
+            }
+          }
+        }
+      },
+
+      moveRig: function (stickX, stickY, dt) {
+        if (!this.headCamera) return;
+        const camRot = this.headCamera.getAttribute('rotation') || { y: 0 };
+        const rigRot = this.el.getAttribute('rotation') || { y: 0 };
+        const totalYaw = (camRot.y + rigRot.y) * (Math.PI / 180);
+
+        // stickY is -1 for forward, +1 for back
+        const fwdX = -Math.sin(totalYaw) * (-stickY);
+        const fwdZ = -Math.cos(totalYaw) * (-stickY);
+        const rightX = Math.cos(totalYaw) * stickX;
+        const rightZ = -Math.sin(totalYaw) * stickX;
+
+        const pos = this.el.getAttribute('position') || { x: 0, y: 0, z: 0 };
+        const speed = this.data.moveSpeed * dt;
+
+        let nextX = pos.x + (fwdX + rightX) * speed;
+        let nextZ = pos.z + (fwdZ + rightZ) * speed;
+
+        // Apply soft bounds check so user doesn't leave the showroom
+        nextX = Math.max(-18, Math.min(18, nextX));
+        nextZ = Math.max(-18, Math.min(18, nextZ));
+
+        this.el.setAttribute('position', {
+          x: nextX,
+          y: pos.y,
+          z: nextZ
+        });
+      },
+
+      snapTurn: function (angleDelta) {
+        const rot = this.el.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
+        this.el.setAttribute('rotation', {
+          x: rot.x,
+          y: (rot.y + angleDelta) % 360,
+          z: rot.z
+        });
+      }
+    });
+  }
+}
+
 // Attempt immediate registration if A-Frame is already loaded
 registerCarDisplayComponent();
 registerShowroomBoundaries();
+registerVrControllerLocomotion();
 
 // ----------------------------------------------------------------------------
 // 8. UI and Scene Lifecycle Initialization on DOM Ready
@@ -1431,30 +1585,147 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --------------------------------------------------------------------------
-  // WebXR / VR Compatibility Check
+  // In-VR 3D Information Board Controls (Phase 8)
   // --------------------------------------------------------------------------
+  // In-VR Color Swatches
+  const vrSwatches = document.querySelectorAll('.vr-color-swatch');
+  vrSwatches.forEach(swatch => {
+    swatch.addEventListener('click', (evt) => {
+      if (evt.detail && evt.detail.cursorEl) {
+        evt.stopPropagation();
+      }
+      const hex = swatch.getAttribute('data-vr-color');
+      if (hex && currentlySelectedCarId) {
+        applyCarColor(currentlySelectedCarId, hex, true);
+      }
+    });
+  });
+
+  // In-VR Rotate 30° Button
+  const btnVrRotate = document.getElementById('vr-btn-rotate');
+  if (btnVrRotate) {
+    btnVrRotate.addEventListener('click', (evt) => {
+      if (evt.detail && evt.detail.cursorEl) evt.stopPropagation();
+      if (activeInspectionCar) {
+        rotateCar(30);
+      }
+    });
+  }
+
+  // In-VR Reset View Button
+  const btnVrReset = document.getElementById('vr-btn-reset-view');
+  if (btnVrReset) {
+    btnVrReset.addEventListener('click', (evt) => {
+      if (evt.detail && evt.detail.cursorEl) evt.stopPropagation();
+      resetCarView();
+    });
+  }
+
+  // In-VR Close Button
+  if (vrCloseBtn) {
+    vrCloseBtn.addEventListener('click', (evt) => {
+      if (evt.detail && evt.detail.cursorEl) evt.stopPropagation();
+      const vrBoard = document.getElementById('vr-info-board');
+      if (vrBoard) {
+        vrBoard.setAttribute('visible', 'false');
+      }
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // VR Mode Available Banner & Notification System (Phase 8)
+  // --------------------------------------------------------------------------
+  const vrBanner = document.getElementById('vr-available-banner');
+  const btnEnterVrBanner = document.getElementById('btn-enter-vr-banner');
+  const btnDismissVrBanner = document.getElementById('btn-dismiss-vr-banner');
+  let vrBannerTimer = null;
+
+  function dismissVrBanner() {
+    if (vrBanner) {
+      vrBanner.classList.add('hidden');
+    }
+    if (vrBannerTimer) {
+      clearTimeout(vrBannerTimer);
+      vrBannerTimer = null;
+    }
+  }
+
+  if (btnDismissVrBanner) {
+    btnDismissVrBanner.addEventListener('click', dismissVrBanner);
+  }
+
+  function triggerEnterVR() {
+    if (sceneEl) {
+      if (typeof sceneEl.enterVR === 'function') {
+        sceneEl.enterVR();
+      }
+    }
+  }
+
+  if (btnEnterVrBanner) {
+    btnEnterVrBanner.addEventListener('click', () => {
+      dismissVrBanner();
+      triggerEnterVR();
+    });
+  }
+
+  // Auto-dismiss the banner after 8.5 seconds so it is not permanently shown over the 3D scene
+  vrBannerTimer = setTimeout(dismissVrBanner, 8500);
+
+  // --------------------------------------------------------------------------
+  // WebXR / VR Compatibility Check & Fallback Handling (Phase 8)
+  // --------------------------------------------------------------------------
+  const vrBadge = document.getElementById('vr-badge');
+  const unsupportedMsg = "VR is not supported on this device/browser. You can still explore the 3D showroom in desktop mode.";
+
+  function setVrUnsupported() {
+    if (vrBadge) {
+      vrBadge.classList.add('unsupported');
+      vrBadge.setAttribute('title', unsupportedMsg);
+    }
+    if (vrStatusText) {
+      vrStatusText.textContent = 'VR Unsupported';
+    }
+    const bannerSubtitle = vrBanner ? vrBanner.querySelector('.vr-banner-subtitle') : null;
+    if (bannerSubtitle) {
+      bannerSubtitle.textContent = unsupportedMsg;
+    }
+  }
+
   function checkWebXRSupport() {
     if (navigator.xr && navigator.xr.isSessionSupported) {
       navigator.xr.isSessionSupported('immersive-vr')
         .then((supported) => {
-          if (supported && vrStatusText) {
-            vrStatusText.textContent = 'VR Ready (Headset Detected)';
-          } else if (vrStatusText) {
-            vrStatusText.textContent = 'VR Ready';
+          if (supported) {
+            if (vrStatusText) vrStatusText.textContent = 'VR Ready (Headset Detected)';
+            if (vrBadge) vrBadge.classList.remove('unsupported');
+          } else {
+            // WebXR API exists, but no active headset detected
+            if (vrStatusText) vrStatusText.textContent = 'VR Ready';
           }
         })
         .catch(() => {
-          if (vrStatusText) vrStatusText.textContent = 'VR Ready';
+          setVrUnsupported();
         });
-    } else if (vrStatusText) {
-      vrStatusText.textContent = 'VR Ready';
+    } else {
+      setVrUnsupported();
     }
   }
 
   checkWebXRSupport();
 
+  if (vrBadge) {
+    vrBadge.addEventListener('click', () => {
+      if (vrBadge.classList.contains('unsupported')) {
+        showCarSelectedToast(unsupportedMsg);
+      } else {
+        triggerEnterVR();
+      }
+    });
+  }
+
   // --------------------------------------------------------------------------
-  // A-Frame Scene Lifecycle Listeners
+  // A-Frame Scene Lifecycle Listeners (Phase 8)
   // --------------------------------------------------------------------------
   if (sceneEl) {
     sceneEl.addEventListener('loaded', () => {
@@ -1465,6 +1736,12 @@ document.addEventListener('DOMContentLoaded', () => {
     sceneEl.addEventListener('enter-vr', () => {
       console.log('👓 Entered WebXR VR Mode.');
       if (introModal) introModal.classList.add('hidden');
+      dismissVrBanner();
+
+      // Show VR gaze cursor as fallback if controllers aren't immediately active
+      const vrGaze = document.getElementById('vr-gaze-cursor');
+      if (vrGaze) vrGaze.setAttribute('visible', 'true');
+
       const vrBoard = document.getElementById('vr-info-board');
       if (vrBoard && currentlySelectedCarId) {
         vrBoard.setAttribute('visible', 'true');
@@ -1473,6 +1750,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sceneEl.addEventListener('exit-vr', () => {
       console.log('👓 Exited WebXR VR Mode.');
+      const vrGaze = document.getElementById('vr-gaze-cursor');
+      if (vrGaze) vrGaze.setAttribute('visible', 'false');
+
       const vrBoard = document.getElementById('vr-info-board');
       if (vrBoard) {
         vrBoard.setAttribute('visible', 'false');
