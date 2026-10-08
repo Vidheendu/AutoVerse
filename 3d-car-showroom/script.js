@@ -42,7 +42,11 @@ const cars = [
     minZoomDist: 2.6,
     maxZoomDist: 7.2,
     vrBoardPosition: "-7.6 2.0 11.5",
-    vrBoardRotation: "0 -25 0"
+    vrBoardRotation: "0 -25 0",
+    // Phase 6: Exterior Material & Color Customization
+    bodyMaterials: ["Meshesbody151Mtl"],
+    defaultColor: "#1565C0", // Blue
+    currentColor: "#1565C0"
   },
   {
     id: "mercedes-amg-gt",
@@ -69,7 +73,11 @@ const cars = [
     minZoomDist: 2.6,
     maxZoomDist: 7.2,
     vrBoardPosition: "7.6 2.0 11.5",
-    vrBoardRotation: "0 25 0"
+    vrBoardRotation: "0 25 0",
+    // Phase 6: Exterior Material & Color Customization
+    bodyMaterials: ["paint", "body", "carpaint", "exterior", "chassis"],
+    defaultColor: "#B0B0B0", // Silver
+    currentColor: "#B0B0B0"
   },
   {
     id: "porsche-911",
@@ -97,7 +105,11 @@ const cars = [
     minZoomDist: 2.6,
     maxZoomDist: 7.2,
     vrBoardPosition: "-8.4 2.0 3.6",
-    vrBoardRotation: "0 -25 0"
+    vrBoardRotation: "0 -25 0",
+    // Phase 6: Exterior Material & Color Customization
+    bodyMaterials: ["paint"],
+    defaultColor: "#F5F5F5", // White
+    currentColor: "#F5F5F5"
   },
   {
     id: "audi-r8",
@@ -125,7 +137,11 @@ const cars = [
     minZoomDist: 2.6,
     maxZoomDist: 7.2,
     vrBoardPosition: "8.4 2.0 3.6",
-    vrBoardRotation: "0 25 0"
+    vrBoardRotation: "0 25 0",
+    // Phase 6: Exterior Material & Color Customization
+    bodyMaterials: ["BodyMaterials(00297F)"],
+    defaultColor: "#C62828", // Red
+    currentColor: "#C62828"
   },
   {
     id: "lamborghini-huracan",
@@ -152,7 +168,11 @@ const cars = [
     minZoomDist: 2.6,
     maxZoomDist: 7.5,
     vrBoardPosition: "0 2.2 -1.2",
-    vrBoardRotation: "0 0 0"
+    vrBoardRotation: "0 0 0",
+    // Phase 6: Exterior Material & Color Customization
+    bodyMaterials: ["paint", "body", "carpaint", "exterior", "chassis"],
+    defaultColor: "#C62828", // Red (Yellow if natural model, otherwise Red)
+    currentColor: "#C62828"
   },
   {
     id: "range-rover-sport",
@@ -179,7 +199,11 @@ const cars = [
     minZoomDist: 2.8,
     maxZoomDist: 7.5,
     vrBoardPosition: "-7.6 2.0 -10.5",
-    vrBoardRotation: "0 -25 0"
+    vrBoardRotation: "0 -25 0",
+    // Phase 6: Exterior Material & Color Customization
+    bodyMaterials: ["paint", "body", "carpaint", "exterior", "chassis"],
+    defaultColor: "#111111", // Black
+    currentColor: "#111111"
   },
   {
     id: "ford-mustang",
@@ -206,12 +230,35 @@ const cars = [
     minZoomDist: 2.6,
     maxZoomDist: 7.2,
     vrBoardPosition: "7.6 2.0 -10.5",
-    vrBoardRotation: "0 25 0"
+    vrBoardRotation: "0 25 0",
+    // Phase 6: Exterior Material & Color Customization
+    bodyMaterials: ["paint", "body", "carpaint", "exterior", "chassis"],
+    defaultColor: "#C62828", // Red
+    currentColor: "#C62828"
   }
 ];
 
 // ----------------------------------------------------------------------------
-// 2. State & Toast Notification Helper
+// 2. Customizer Palette & Material Configuration (Phase 6)
+// ----------------------------------------------------------------------------
+const CUSTOMIZER_COLORS = [
+  { name: 'Black', hex: '#111111' },
+  { name: 'White', hex: '#F5F5F5' },
+  { name: 'Red', hex: '#C62828' },
+  { name: 'Blue', hex: '#1565C0' },
+  { name: 'Silver', hex: '#B0B0B0' }
+];
+
+const EXCLUDED_MATERIAL_PATTERNS = [
+  'window', 'windshield', 'glass', 'tire', 'tyre', 'wheel', 'rim', 'rubber',
+  'light', 'headlight', 'taillight', 'redlight', 'led', 'chrome', 'interior',
+  'dash', 'mirror', 'seat', 'brake', 'disc', 'caliper', 'license', 'plate',
+  'grill', 'piggrill', 'radiator', 'raidiator', 'logo', 'badge', 'engine',
+  'carpet', 'carbon', 'carbonfibre', 'plastic', 'undercarriage', 'axe', 'bolt'
+];
+
+// ----------------------------------------------------------------------------
+// 3. State & Toast Notification Helper
 // ----------------------------------------------------------------------------
 let currentlySelectedCarId = null;
 let activeInspectionCar = null;
@@ -453,6 +500,9 @@ function exitInspectionMode() {
     inspectionPanel.setAttribute('aria-hidden', 'true');
   }
 
+  // Close customization studio if open (Phase 6)
+  closeCustomizer();
+
   // Deselect car, hide platform highlight, hide specifications panel and VR board
   deselectCar(true);
 
@@ -566,6 +616,12 @@ function selectCar(carId) {
   // 4. Enter Inspection Mode for this vehicle (Phase 5)
   enterInspectionMode(carData);
 
+  // 5. Update Customization Studio if already open (Phase 6)
+  const customizerPanel = document.getElementById('customization-panel');
+  if (customizerPanel && customizerPanel.classList.contains('active')) {
+    openCustomizer(carData.id);
+  }
+
   // Toast confirmation
   showCarSelectedToast(carData.name);
 }
@@ -604,8 +660,156 @@ function deselectCar(hidePanel = true) {
       panel.classList.remove('active');
       panel.setAttribute('aria-hidden', 'true');
     }
+    closeCustomizer();
     currentlySelectedCarId = null;
   }
+}
+
+// ----------------------------------------------------------------------------
+// 6. Car Color Customization Studio (Phase 6)
+// ----------------------------------------------------------------------------
+/**
+ * Accurately determines if a Three.js material belongs to the exterior body paint
+ * of the vehicle based on per-car configuration and strict exclusion lists.
+ */
+function isBodyMaterial(mat, carData) {
+  if (!mat || !mat.name) return false;
+  const matName = mat.name;
+  const matNameLower = matName.toLowerCase();
+
+  // 1. Explicit car-specific target material matching
+  if (carData && carData.bodyMaterials && Array.isArray(carData.bodyMaterials)) {
+    const isTarget = carData.bodyMaterials.some(target => 
+      matName === target || matNameLower === target.toLowerCase()
+    );
+    if (isTarget) return true;
+  }
+
+  // 2. Strict exclusion filter (windows, wheels, tires, lights, chrome, etc.)
+  for (const excluded of EXCLUDED_MATERIAL_PATTERNS) {
+    if (matNameLower.includes(excluded)) {
+      return false;
+    }
+  }
+
+  // 3. Fallback heuristic for generic car models
+  return matNameLower.includes('paint') || matNameLower.includes('body') || matNameLower.includes('exterior');
+}
+
+/**
+ * Applies an exterior paint color to the vehicle in real-time.
+ * Modifies existing Three.js materials in-place without reloading GLB or scene.
+ */
+function applyCarColor(carId, colorHex, showToast = true) {
+  const carData = cars.find(c => c.id === carId);
+  if (!carData) return;
+
+  carData.currentColor = colorHex;
+
+  const carEl = document.getElementById(`car-${carId}`);
+  let recoloredCount = 0;
+
+  if (carEl) {
+    const mesh = carEl.getObject3D('mesh');
+    if (mesh) {
+      mesh.traverse((node) => {
+        if (node.isMesh && node.material) {
+          const mats = Array.isArray(node.material) ? node.material : [node.material];
+          mats.forEach((mat) => {
+            if (isBodyMaterial(mat, carData)) {
+              if (mat.color) {
+                mat.color.set(colorHex);
+                mat.needsUpdate = true;
+                recoloredCount++;
+              }
+            }
+          });
+        }
+      });
+    }
+  }
+
+  // Update active state on color swatches
+  updateCustomizerSwatches(colorHex);
+
+  const colorDef = CUSTOMIZER_COLORS.find(c => c.hex.toLowerCase() === colorHex.toLowerCase());
+  const colorName = colorDef ? colorDef.name : colorHex;
+
+  if (showToast) {
+    showCarSelectedToast(`${carData.name} exterior updated to ${colorName}`);
+  }
+
+  console.log(`🎨 [AutoVerse Customizer] Applied ${colorName} (${colorHex}) to ${carData.name} (${recoloredCount} mesh materials updated).`);
+}
+
+/**
+ * Restores the vehicle's original default starting color.
+ */
+function resetCarColor(carId) {
+  const targetId = carId || currentlySelectedCarId || (activeInspectionCar ? activeInspectionCar.id : 'bmw-m4');
+  const carData = cars.find(c => c.id === targetId);
+  if (!carData) return;
+
+  const defaultHex = carData.defaultColor || '#1565C0';
+  applyCarColor(targetId, defaultHex, false);
+
+  const colorDef = CUSTOMIZER_COLORS.find(c => c.hex.toLowerCase() === defaultHex.toLowerCase());
+  const colorName = colorDef ? colorDef.name : defaultHex;
+  showCarSelectedToast(`${carData.name} color reset to ${colorName}`);
+}
+
+/**
+ * Displays the customization studio panel for the active or selected vehicle.
+ */
+function openCustomizer(carId) {
+  const targetId = carId || currentlySelectedCarId || (activeInspectionCar ? activeInspectionCar.id : 'bmw-m4');
+  const carData = cars.find(c => c.id === targetId);
+  if (!carData) return;
+
+  const customizerPanel = document.getElementById('customization-panel');
+  const carNameLabel = document.getElementById('customizer-car-name');
+
+  if (carNameLabel) {
+    carNameLabel.textContent = `${carData.name} • ${carData.category}`;
+  }
+
+  updateCustomizerSwatches(carData.currentColor || carData.defaultColor);
+
+  if (customizerPanel) {
+    customizerPanel.classList.add('active');
+    customizerPanel.setAttribute('aria-hidden', 'false');
+  }
+
+  console.log(`🎨 [AutoVerse Customizer] Opened customization studio for: ${carData.name}`);
+}
+
+/**
+ * Hides the customization studio panel.
+ */
+function closeCustomizer() {
+  const customizerPanel = document.getElementById('customization-panel');
+  if (customizerPanel) {
+    customizerPanel.classList.remove('active');
+    customizerPanel.setAttribute('aria-hidden', 'true');
+  }
+}
+
+/**
+ * Syncs visual active indicators on color swatch buttons.
+ */
+function updateCustomizerSwatches(activeHex) {
+  if (!activeHex) return;
+  const swatches = document.querySelectorAll('.color-swatch-card');
+  swatches.forEach(swatch => {
+    const swatchColor = swatch.getAttribute('data-color');
+    if (swatchColor && swatchColor.toLowerCase() === activeHex.toLowerCase()) {
+      swatch.classList.add('active');
+      swatch.setAttribute('aria-pressed', 'true');
+    } else {
+      swatch.classList.remove('active');
+      swatch.setAttribute('aria-pressed', 'false');
+    }
+  });
 }
 
 // Expose globally for API, test suites, and debugging access
@@ -619,6 +823,11 @@ if (typeof window !== 'undefined') {
   window.zoomOut = zoomOut;
   window.resetCarView = resetCarView;
   window.exitInspectionMode = exitInspectionMode;
+  window.applyCarColor = applyCarColor;
+  window.resetCarColor = resetCarColor;
+  window.openCustomizer = openCustomizer;
+  window.closeCustomizer = closeCustomizer;
+  window.CUSTOMIZER_COLORS = CUSTOMIZER_COLORS;
 }
 
 // ----------------------------------------------------------------------------
@@ -669,6 +878,8 @@ function registerCarDisplayComponent() {
                 node.receiveShadow = true;
               }
             });
+            // Apply configured vehicle color (Phase 6)
+            applyCarColor(this.carData.id, this.carData.currentColor || this.carData.defaultColor, false);
           }
           console.log(`✅ [${this.carData.name}] 3D model loaded successfully.`);
         });
@@ -752,6 +963,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnResetView = document.getElementById('btn-reset-view');
   const btnExitInspection = document.getElementById('btn-exit-inspection');
   const dragZone = document.getElementById('inspection-drag-zone');
+
+  // Customization Studio Elements (Phase 6)
+  const customizerPanel = document.getElementById('customization-panel');
+  const btnOpenCustomizer = document.getElementById('btn-open-customizer');
+  const btnInspectCustomize = document.getElementById('btn-inspect-customize');
+  const btnCloseCustomizer = document.getElementById('btn-close-customizer');
+  const customizerCloseIconBtn = document.getElementById('customizer-close-icon-btn');
+  const btnResetColor = document.getElementById('btn-reset-color');
+  const colorSwatches = document.querySelectorAll('.color-swatch-card');
 
   // Starting camera position overlooking the entire showroom aisle
   const SPAWN_POSITION = { x: 0, y: 0, z: 15 };
@@ -851,6 +1071,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (customizerPanel) {
+    ['mousedown', 'mousemove', 'mouseup', 'click', 'touchstart', 'touchmove', 'touchend', 'wheel', 'pointerdown', 'pointermove', 'pointerup'].forEach(evt => {
+      customizerPanel.addEventListener(evt, stopProp);
+    });
+  }
+
   // --------------------------------------------------------------------------
   // Inspection Toolbar Button Handlers (Phase 5)
   // --------------------------------------------------------------------------
@@ -895,6 +1121,56 @@ document.addEventListener('DOMContentLoaded', () => {
       exitInspectionMode();
     });
   }
+
+  // --------------------------------------------------------------------------
+  // Customization Studio Handlers (Phase 6)
+  // --------------------------------------------------------------------------
+  if (btnOpenCustomizer) {
+    btnOpenCustomizer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openCustomizer();
+    });
+  }
+
+  if (btnInspectCustomize) {
+    btnInspectCustomize.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openCustomizer();
+    });
+  }
+
+  if (btnCloseCustomizer) {
+    btnCloseCustomizer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeCustomizer();
+    });
+  }
+
+  if (customizerCloseIconBtn) {
+    customizerCloseIconBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeCustomizer();
+    });
+  }
+
+  if (btnResetColor) {
+    btnResetColor.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetId = currentlySelectedCarId || (activeInspectionCar ? activeInspectionCar.id : 'bmw-m4');
+      resetCarColor(targetId);
+    });
+  }
+
+  colorSwatches.forEach(swatch => {
+    swatch.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const colorHex = swatch.getAttribute('data-color');
+      const targetId = currentlySelectedCarId || (activeInspectionCar ? activeInspectionCar.id : 'bmw-m4');
+      if (colorHex && targetId) {
+        applyCarColor(targetId, colorHex, true);
+      }
+    });
+  });
 
   // --------------------------------------------------------------------------
   // Mouse Drag / Touch Swipe to Rotate Car (Phase 5)

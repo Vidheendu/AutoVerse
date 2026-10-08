@@ -156,7 +156,62 @@
 
       <!-- Panel Footer Actions -->
       <div class="panel-footer">
+        <button class="btn-panel-action btn-customize-action" id="btn-open-customizer" title="Customize exterior paint color">
+          🎨 Customize Car
+        </button>
         <button class="btn-panel-action" id="panel-close-btn">Close</button>
+      </div>
+    </aside>
+
+    <!-- Reusable Vehicle Customization Studio Panel (Phase 6) -->
+    <aside id="customization-panel" class="customization-panel" aria-hidden="true">
+      <div class="customizer-header">
+        <span class="customizer-badge">EXTERIOR STUDIO</span>
+        <button class="customizer-close-icon" id="customizer-close-icon-btn" aria-label="Close customization studio">✕</button>
+      </div>
+
+      <div class="customizer-hero">
+        <h2 class="customizer-title">CUSTOMIZE YOUR CAR</h2>
+        <p class="customizer-car-name" id="customizer-car-name">BMW M4</p>
+        <span class="customizer-hint">Select exterior paint color</span>
+      </div>
+
+      <!-- Color Swatches Grid -->
+      <div class="color-swatches-grid">
+        <button class="color-swatch-card" data-color="#111111" data-name="Black" title="Black (#111111)">
+          <span class="swatch-circle" style="background-color: #111111;"></span>
+          <span class="swatch-label">Black</span>
+        </button>
+
+        <button class="color-swatch-card" data-color="#F5F5F5" data-name="White" title="White (#F5F5F5)">
+          <span class="swatch-circle" style="background-color: #F5F5F5; border: 1px solid rgba(255,255,255,0.4);"></span>
+          <span class="swatch-label">White</span>
+        </button>
+
+        <button class="color-swatch-card" data-color="#C62828" data-name="Red" title="Red (#C62828)">
+          <span class="swatch-circle" style="background-color: #C62828;"></span>
+          <span class="swatch-label">Red</span>
+        </button>
+
+        <button class="color-swatch-card" data-color="#1565C0" data-name="Blue" title="Blue (#1565C0)">
+          <span class="swatch-circle" style="background-color: #1565C0;"></span>
+          <span class="swatch-label">Blue</span>
+        </button>
+
+        <button class="color-swatch-card" data-color="#B0B0B0" data-name="Silver" title="Silver (#B0B0B0)">
+          <span class="swatch-circle" style="background-color: #B0B0B0;"></span>
+          <span class="swatch-label">Silver</span>
+        </button>
+      </div>
+
+      <!-- Customization Action Buttons -->
+      <div class="customizer-actions">
+        <button class="btn-customizer-reset" id="btn-reset-color" title="Restore original default vehicle color">
+          <span class="btn-symbol">↺</span> Reset Color
+        </button>
+        <button class="btn-customizer-close" id="btn-close-customizer" title="Close customization panel">
+          Close
+        </button>
       </div>
     </aside>
 
@@ -196,6 +251,10 @@
         <button class="btn-inspect" id="btn-zoom-out" title="Move camera farther from car">
           <span class="btn-symbol">−</span>
           <span class="btn-label">Zoom Out</span>
+        </button>
+        <button class="btn-inspect" id="btn-inspect-customize" title="Customize exterior paint color">
+          <span class="btn-symbol">🎨</span>
+          <span class="btn-label">Customize</span>
         </button>
         <button class="btn-inspect" id="btn-reset-view" title="Restore original car rotation and camera view">
           <span class="btn-symbol">↺</span>
