@@ -492,3 +492,306 @@ html, body {
   flex-shrink: 0;
 }
 
+/* --------------------------------------------------------------------------
+   9. Vehicle Information & Specification Panel (Phase 4)
+   -------------------------------------------------------------------------- */
+.car-info-panel {
+  position: fixed;
+  top: 76px;
+  right: 28px;
+  width: 380px;
+  max-height: calc(100vh - 110px);
+  background: rgba(11, 15, 23, 0.90);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 30px rgba(56, 189, 248, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 500;
+  overflow-y: auto;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(430px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.car-info-panel.active {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Custom Scrollbar for Panel */
+.car-info-panel::-webkit-scrollbar {
+  width: 5px;
+}
+.car-info-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.car-info-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+}
+
+/* Panel Header */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.panel-close-icon {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1;
+  transition: all var(--transition-fast);
+}
+
+.panel-close-icon:hover {
+  color: #ffffff;
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.6);
+  transform: scale(1.06);
+}
+
+/* Panel Hero */
+.panel-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel-car-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.panel-price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.price-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.price-value {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #10b981;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+/* Quick Performance Highlights Pill Strip */
+.panel-quick-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.quick-stat-box {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.quick-stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.quick-stat-val {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #f8fafc;
+  font-family: var(--font-primary);
+}
+
+/* View Specifications Expand Button */
+.btn-specs-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: var(--accent-cyan);
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: var(--font-primary);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-specs-toggle:hover {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+  transform: translateY(-1px);
+}
+
+.toggle-chevron {
+  font-size: 0.85rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-specs-toggle.expanded .toggle-chevron {
+  transform: rotate(180deg);
+}
+
+/* Detailed Technical Specifications Grid */
+.panel-specs-details {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.panel-specs-details.expanded {
+  max-height: 520px;
+  opacity: 1;
+}
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.spec-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 9px 11px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.spec-card.span-two {
+  grid-column: span 2;
+}
+
+.spec-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+}
+
+.spec-val {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f8fafc;
+  font-family: var(--font-secondary);
+  line-height: 1.3;
+}
+
+/* Panel Footer Actions */
+.panel-footer {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-panel-action {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--text-primary);
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  font-family: var(--font-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-panel-action:hover {
+  background: rgba(239, 68, 68, 0.20);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+}
+
+/* Mobile & Tablet Responsive Tweaks */
+@media (max-width: 640px) {
+  .car-info-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 80vh;
+    border-radius: 22px 22px 0 0;
+    transform: translateY(100%);
+    padding: 20px 18px 24px;
+  }
+
+  .car-info-panel.active {
+    transform: translateY(0);
+  }
+
+  .specs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .spec-card.span-two {
+    grid-column: span 1;
+  }
+}
+
+

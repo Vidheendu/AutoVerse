@@ -84,6 +84,81 @@
       </svg>
       <span id="toast-text">BMW M4 selected</span>
     </div>
+
+    <!-- Reusable Vehicle Information & Specification Panel (Phase 4) -->
+    <aside id="car-info-panel" class="car-info-panel" aria-hidden="true">
+      <!-- Header -->
+      <div class="panel-header">
+        <span class="panel-header-badge" id="panel-car-category">Sports Coupe</span>
+        <button class="panel-close-icon" id="panel-close-icon-btn" aria-label="Close specifications panel">✕</button>
+      </div>
+
+      <!-- Hero Section -->
+      <div class="panel-hero">
+        <h2 class="panel-car-title" id="panel-car-name">BMW M4</h2>
+        <div class="panel-price-row">
+          <span class="price-label">Ex-Showroom Price</span>
+          <span class="price-value" id="panel-car-price">₹1.50 Crore</span>
+        </div>
+      </div>
+
+      <!-- Quick Highlights Summary -->
+      <div class="panel-quick-stats">
+        <div class="quick-stat-box">
+          <span class="quick-stat-label">Power</span>
+          <span class="quick-stat-val" id="panel-quick-power">503 HP</span>
+        </div>
+        <div class="quick-stat-box">
+          <span class="quick-stat-label">Top Speed</span>
+          <span class="quick-stat-val" id="panel-quick-speed">250 km/h</span>
+        </div>
+        <div class="quick-stat-box">
+          <span class="quick-stat-label">0–100</span>
+          <span class="quick-stat-val" id="panel-quick-accel">3.9s</span>
+        </div>
+      </div>
+
+      <!-- View Specifications Button -->
+      <button class="btn-specs-toggle" id="btn-view-specs" aria-expanded="false">
+        <span id="specs-toggle-label">View Specifications</span>
+        <span class="toggle-chevron">▼</span>
+      </button>
+
+      <!-- Detailed Technical Specifications Grid (Collapsible) -->
+      <div class="panel-specs-details" id="panel-specs-details">
+        <div class="specs-grid">
+          <div class="spec-card span-two">
+            <span class="spec-label">Engine</span>
+            <span class="spec-val" id="panel-spec-engine">3.0L Twin-Turbo Inline-6</span>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Power</span>
+            <span class="spec-val" id="panel-spec-power">503 HP</span>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Transmission</span>
+            <span class="spec-val" id="panel-spec-transmission">8-Speed Automatic</span>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Fuel</span>
+            <span class="spec-val" id="panel-spec-fuel">Petrol</span>
+          </div>
+          <div class="spec-card">
+            <span class="spec-label">Top Speed</span>
+            <span class="spec-val" id="panel-spec-speed">250 km/h</span>
+          </div>
+          <div class="spec-card span-two">
+            <span class="spec-label">0–100 km/h</span>
+            <span class="spec-val" id="panel-spec-acceleration">3.9 seconds</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel Footer Actions -->
+      <div class="panel-footer">
+        <button class="btn-panel-action" id="panel-close-btn">Close</button>
+      </div>
+    </aside>
   </div>
 
   <!-- Introductory Welcome Modal Dialog -->
@@ -152,6 +227,7 @@
       <!-- Central Platform Spotlights (Dramatic automotive bodyline highlights) -->
       <!-- Overhead Spot directly pointing down at the central platform -->
       <a-light
+        id="spot-lamborghini-huracan"
         type="spot"
         color="#ffffff"
         intensity="2.2"
@@ -206,10 +282,10 @@
       <!-- --------------------------------------------------------------------
            2. First-Person Camera Rig & Controls
            -------------------------------------------------------------------- -->
-      <!-- Camera Rig positioned at 7.5m facing the central display platform -->
+      <!-- Camera Rig positioned at entrance aisle (15m) overlooking the entire 7-car fleet -->
       <a-entity
         id="camera-rig"
-        position="0 0 7.5"
+        position="0 0 15"
         showroom-boundaries="minX: -18; maxX: 18; minZ: -18; maxZ: 18">
         
         <!-- First Person Head with standard A-Frame controls -->
@@ -395,12 +471,148 @@
         <a-box position="0 -3.3 0.1" width="40" height="0.4" depth="0.2" color="#0f1219"></a-box>
       </a-entity>
 
-      <!-- --------------------------------------------------------------------
-           5. Central Display Platform (Main Stage for Car in Phase 2)
-           -------------------------------------------------------------------- -->
-      <a-entity id="central-platform" position="0 0 -3">
+      <!-- ====================================================================
+           5. SEVEN CAR DISPLAY PLATFORMS & SHOWROOM ARRANGEMENT (PHASE 3)
+           Layout:
+                     [FRONT / ENTRANCE]
+              BMW M4                    Mercedes-AMG GT
+              Porsche 911               Audi R8
+                     [CENTRAL DISPLAY: Lamborghini Huracán]
+              Range Rover Sport         Ford Mustang
+           ==================================================================== -->
+
+      <!-- ------------------------------------------------------------------
+           ROW 1 (FRONT): BAY 1 - BMW M4 (Sports Coupe)
+           ------------------------------------------------------------------ -->
+      <a-entity id="bay-bmw-m4" position="-10 0 10">
+        <!-- Display Platform Base -->
+        <a-box class="clickable platform-base" data-car-id="bmw-m4" position="0 0.05 0" width="5.2" height="0.1" depth="8.2" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
+        <!-- Blue LED Perimeter Border -->
+        <a-box position="0 0.11 4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <a-box position="0 0.11 -4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <!-- Subtle Active Selection Border -->
+        <a-box class="bay-highlight-border" visible="false" position="0 0.12 0" width="5.35" height="0.03" depth="8.35" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 1.0; transparent: true; opacity: 0.85"></a-box>
+
+        <!-- Dedicated Overhead Downlight -->
+        <a-light id="spot-bmw-m4" type="spot" color="#ffffff" intensity="1.4" position="0 6.5 0" target="#bay-bmw-m4" angle="40" penumbra="0.6"></a-light>
+
+        <!-- Information Label Plaque -->
+        <a-entity class="clickable" data-car-id="bmw-m4" position="2.2 0 3.6" rotation="0 -45 0">
+          <a-cylinder radius="0.03" height="0.8" position="0 0.4 0" color="#1e293b" metalness="0.7"></a-cylinder>
+          <a-cylinder radius="0.2" height="0.04" position="0 0.02 0" color="#0f172a"></a-cylinder>
+          <a-entity position="0 0.85 0" rotation="-28 0 0">
+            <a-box width="1.1" height="0.55" depth="0.03" color="#0b1120" metalness="0.7"></a-box>
+            <a-box width="1.12" height="0.02" depth="0.035" position="0 0.27 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+            <a-text value="BMW M4" align="center" position="0 0.09 0.02" width="3.2" color="#ffffff" font="aileronsemibold"></a-text>
+            <a-text value="Sports Coupe" align="center" position="0 -0.11 0.02" width="2.3" color="#38bdf8" font="kelsonsans"></a-text>
+          </a-entity>
+        </a-entity>
+
+        <!-- Reusable 3D Car Entity -->
+        <a-entity id="car-bmw-m4" car-display="carId: bmw-m4"></a-entity>
+      </a-entity>
+
+      <!-- ------------------------------------------------------------------
+           ROW 1 (FRONT): BAY 2 - MERCEDES-AMG GT (Luxury Sports)
+           ------------------------------------------------------------------ -->
+      <a-entity id="bay-mercedes-amg-gt" position="10 0 10">
+        <!-- Display Platform Base -->
+        <a-box class="clickable platform-base" data-car-id="mercedes-amg-gt" position="0 0.05 0" width="5.2" height="0.1" depth="8.2" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
+        <!-- Blue LED Perimeter Border -->
+        <a-box position="0 0.11 4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <a-box position="0 0.11 -4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <!-- Subtle Active Selection Border -->
+        <a-box class="bay-highlight-border" visible="false" position="0 0.12 0" width="5.35" height="0.03" depth="8.35" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 1.0; transparent: true; opacity: 0.85"></a-box>
+
+        <!-- Dedicated Overhead Downlight -->
+        <a-light id="spot-mercedes-amg-gt" type="spot" color="#ffffff" intensity="1.4" position="0 6.5 0" target="#bay-mercedes-amg-gt" angle="40" penumbra="0.6"></a-light>
+
+        <!-- Information Label Plaque -->
+        <a-entity class="clickable" data-car-id="mercedes-amg-gt" position="-2.2 0 3.6" rotation="0 45 0">
+          <a-cylinder radius="0.03" height="0.8" position="0 0.4 0" color="#1e293b" metalness="0.7"></a-cylinder>
+          <a-cylinder radius="0.2" height="0.04" position="0 0.02 0" color="#0f172a"></a-cylinder>
+          <a-entity position="0 0.85 0" rotation="-28 0 0">
+            <a-box width="1.2" height="0.55" depth="0.03" color="#0b1120" metalness="0.7"></a-box>
+            <a-box width="1.22" height="0.02" depth="0.035" position="0 0.27 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+            <a-text value="Mercedes-AMG GT" align="center" position="0 0.09 0.02" width="2.8" color="#ffffff" font="aileronsemibold"></a-text>
+            <a-text value="Luxury Sports" align="center" position="0 -0.11 0.02" width="2.3" color="#38bdf8" font="kelsonsans"></a-text>
+          </a-entity>
+        </a-entity>
+
+        <!-- Reusable 3D Car Entity -->
+        <a-entity id="car-mercedes-amg-gt" car-display="carId: mercedes-amg-gt"></a-entity>
+      </a-entity>
+
+      <!-- ------------------------------------------------------------------
+           ROW 2 (MID): BAY 3 - PORSCHE 911 (Performance)
+           ------------------------------------------------------------------ -->
+      <a-entity id="bay-porsche-911" position="-11 0 2">
+        <!-- Display Platform Base -->
+        <a-box class="clickable platform-base" data-car-id="porsche-911" position="0 0.05 0" width="5.2" height="0.1" depth="8.2" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
+        <!-- Blue LED Perimeter Border -->
+        <a-box position="0 0.11 4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <a-box position="0 0.11 -4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <!-- Subtle Active Selection Border -->
+        <a-box class="bay-highlight-border" visible="false" position="0 0.12 0" width="5.35" height="0.03" depth="8.35" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 1.0; transparent: true; opacity: 0.85"></a-box>
+
+        <!-- Dedicated Overhead Downlight -->
+        <a-light id="spot-porsche-911" type="spot" color="#ffffff" intensity="1.4" position="0 6.5 0" target="#bay-porsche-911" angle="40" penumbra="0.6"></a-light>
+
+        <!-- Information Label Plaque -->
+        <a-entity class="clickable" data-car-id="porsche-911" position="2.2 0 3.6" rotation="0 -35 0">
+          <a-cylinder radius="0.03" height="0.8" position="0 0.4 0" color="#1e293b" metalness="0.7"></a-cylinder>
+          <a-cylinder radius="0.2" height="0.04" position="0 0.02 0" color="#0f172a"></a-cylinder>
+          <a-entity position="0 0.85 0" rotation="-28 0 0">
+            <a-box width="1.1" height="0.55" depth="0.03" color="#0b1120" metalness="0.7"></a-box>
+            <a-box width="1.12" height="0.02" depth="0.035" position="0 0.27 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+            <a-text value="Porsche 911" align="center" position="0 0.09 0.02" width="3.2" color="#ffffff" font="aileronsemibold"></a-text>
+            <a-text value="Performance" align="center" position="0 -0.11 0.02" width="2.3" color="#38bdf8" font="kelsonsans"></a-text>
+          </a-entity>
+        </a-entity>
+
+        <!-- Reusable 3D Car Entity -->
+        <a-entity id="car-porsche-911" car-display="carId: porsche-911"></a-entity>
+      </a-entity>
+
+      <!-- ------------------------------------------------------------------
+           ROW 2 (MID): BAY 4 - AUDI R8 (Supercar)
+           ------------------------------------------------------------------ -->
+      <a-entity id="bay-audi-r8" position="11 0 2">
+        <!-- Display Platform Base -->
+        <a-box class="clickable platform-base" data-car-id="audi-r8" position="0 0.05 0" width="5.2" height="0.1" depth="8.2" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
+        <!-- Blue LED Perimeter Border -->
+        <a-box position="0 0.11 4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <a-box position="0 0.11 -4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <!-- Subtle Active Selection Border -->
+        <a-box class="bay-highlight-border" visible="false" position="0 0.12 0" width="5.35" height="0.03" depth="8.35" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 1.0; transparent: true; opacity: 0.85"></a-box>
+
+        <!-- Dedicated Overhead Downlight -->
+        <a-light id="spot-audi-r8" type="spot" color="#ffffff" intensity="1.4" position="0 6.5 0" target="#bay-audi-r8" angle="40" penumbra="0.6"></a-light>
+
+        <!-- Information Label Plaque -->
+        <a-entity class="clickable" data-car-id="audi-r8" position="-2.2 0 3.6" rotation="0 35 0">
+          <a-cylinder radius="0.03" height="0.8" position="0 0.4 0" color="#1e293b" metalness="0.7"></a-cylinder>
+          <a-cylinder radius="0.2" height="0.04" position="0 0.02 0" color="#0f172a"></a-cylinder>
+          <a-entity position="0 0.85 0" rotation="-28 0 0">
+            <a-box width="1.1" height="0.55" depth="0.03" color="#0b1120" metalness="0.7"></a-box>
+            <a-box width="1.12" height="0.02" depth="0.035" position="0 0.27 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+            <a-text value="Audi R8" align="center" position="0 0.09 0.02" width="3.2" color="#ffffff" font="aileronsemibold"></a-text>
+            <a-text value="Supercar" align="center" position="0 -0.11 0.02" width="2.3" color="#38bdf8" font="kelsonsans"></a-text>
+          </a-entity>
+        </a-entity>
+
+        <!-- Reusable 3D Car Entity -->
+        <a-entity id="car-audi-r8" car-display="carId: audi-r8"></a-entity>
+      </a-entity>
+
+      <!-- ------------------------------------------------------------------
+           ROW 3 (CENTER): CENTRAL DISPLAY STAGE - LAMBORGHINI HURACÁN (Supercar)
+           ------------------------------------------------------------------ -->
+      <a-entity id="central-platform" position="0 0 -5">
         <!-- Main Circular Podium Base -->
         <a-cylinder
+          class="clickable platform-base"
+          data-car-id="lamborghini-huracan"
           radius="4.6"
           height="0.22"
           position="0 0.11 0"
@@ -417,6 +629,18 @@
           rotation="-90 0 0"
           color="#38bdf8"
           material="emissive: #38bdf8; emissiveIntensity: 0.9">
+        </a-ring>
+
+        <!-- Subtle Active Selection Ring -->
+        <a-ring
+          class="bay-highlight-border"
+          visible="false"
+          radius-inner="4.62"
+          radius-outer="4.82"
+          position="0 0.245 0"
+          rotation="-90 0 0"
+          color="#00f0ff"
+          material="emissive: #00f0ff; emissiveIntensity: 1.0">
         </a-ring>
 
         <!-- Top Turntable Finish Surface -->
@@ -442,111 +666,128 @@
         <a-box
           position="0 0.15 4.7"
           rotation="0 0 0"
-          width="3.2"
+          width="3.6"
           height="0.2"
           depth="0.1"
           color="#0f172a">
         </a-box>
         <a-text
-          value="PRIMARY DISPLAY STAGE"
+          value="CENTRAL DISPLAY • FLAGSHIP STAGE"
           align="center"
           position="0 0.15 4.76"
           width="3.5"
           color="#38bdf8">
         </a-text>
 
-        <!-- ==================================================================
-             Phase 2: BMW M4 3D Vehicle Model (Reusable car-display Component)
-             ================================================================== -->
-        <a-entity
-          id="main-vehicle"
-          car-display="carId: bmw-m4">
-        </a-entity>
-
-        <!-- ==================================================================
-             Car Information Label Plaque (Compact & Professional)
-             ================================================================== -->
-        <a-entity id="car-info-plaque" position="2.8 0 2.6" rotation="0 -35 0">
-          <!-- Plaque Stand Stem -->
-          <a-cylinder radius="0.03" height="0.85" position="0 0.425 0" color="#1e293b" roughness="0.3" metalness="0.7"></a-cylinder>
-          <!-- Plaque Heavy Base Pad -->
-          <a-cylinder radius="0.22" height="0.04" position="0 0.02 0" color="#0f172a" roughness="0.4" metalness="0.5"></a-cylinder>
-
-          <!-- Angled Info Board Header -->
+        <!-- Information Label Plaque for Lamborghini Huracán -->
+        <a-entity id="plaque-lamborghini" class="clickable" data-car-id="lamborghini-huracan" position="2.8 0 2.6" rotation="0 -35 0">
+          <a-cylinder radius="0.03" height="0.85" position="0 0.425 0" color="#1e293b" metalness="0.7"></a-cylinder>
+          <a-cylinder radius="0.22" height="0.04" position="0 0.02 0" color="#0f172a"></a-cylinder>
           <a-entity position="0 0.88 0" rotation="-28 0 0">
-            <!-- Board Backplate -->
-            <a-box width="1.1" height="0.6" depth="0.03" color="#0b1120" roughness="0.2" metalness="0.7"></a-box>
-            <!-- Glowing Cyan Accent Top Border -->
-            <a-box width="1.12" height="0.02" depth="0.035" position="0 0.3 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
-            
-            <!-- Car Name Title -->
-            <a-text
-              value="BMW M4"
-              align="center"
-              position="0 0.1 0.02"
-              width="3.2"
-              color="#ffffff"
-              font="aileronsemibold">
-            </a-text>
-
-            <!-- Car Category Subtitle -->
-            <a-text
-              value="Sports Coupe"
-              align="center"
-              position="0 -0.12 0.02"
-              width="2.3"
-              color="#38bdf8"
-              font="kelsonsans">
-            </a-text>
+            <a-box width="1.2" height="0.6" depth="0.03" color="#0b1120" metalness="0.7"></a-box>
+            <a-box width="1.22" height="0.02" depth="0.035" position="0 0.3 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+            <a-text value="Lamborghini Huracán" align="center" position="0 0.1 0.02" width="2.8" color="#ffffff" font="aileronsemibold"></a-text>
+            <a-text value="Supercar" align="center" position="0 -0.12 0.02" width="2.3" color="#38bdf8" font="kelsonsans"></a-text>
           </a-entity>
         </a-entity>
+
+        <!-- Reusable 3D Car Entity (Lamborghini Huracán on Central Stage) -->
+        <a-entity id="car-lamborghini-huracan" car-display="carId: lamborghini-huracan"></a-entity>
       </a-entity>
 
-      <!-- --------------------------------------------------------------------
-           6. Additional Empty Display Areas (For future cars)
-           -------------------------------------------------------------------- -->
-      <!-- Display Bay 1 (Left Front) -->
-      <a-entity id="display-bay-1" position="-10 0 -8">
-        <!-- Raised Platform Pad -->
-        <a-box position="0 0.05 0" width="5" height="0.1" depth="8" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
-        <!-- Blue Perimeter LED Outline -->
-        <a-box position="0 0.11 3.95" width="4.9" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.6"></a-box>
-        <a-box position="0 0.11 -3.95" width="4.9" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.6"></a-box>
-        <!-- Bay Spec Totem / Plinth -->
-        <a-box position="-2.2 0.45 3.6" width="0.4" height="0.8" depth="0.4" color="#0f172a"></a-box>
-        <a-text value="BAY 01\nEMPTY" align="center" position="-2.2 0.55 3.82" width="2.4" color="#94a3b8"></a-text>
+      <!-- ------------------------------------------------------------------
+           ROW 4 (REAR): BAY 6 - RANGE ROVER SPORT (Luxury SUV)
+           ------------------------------------------------------------------ -->
+      <a-entity id="bay-range-rover-sport" position="-10 0 -12">
+        <!-- Display Platform Base -->
+        <a-box class="clickable platform-base" data-car-id="range-rover-sport" position="0 0.05 0" width="5.2" height="0.1" depth="8.2" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
+        <!-- Blue LED Perimeter Border -->
+        <a-box position="0 0.11 4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <a-box position="0 0.11 -4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <!-- Subtle Active Selection Border -->
+        <a-box class="bay-highlight-border" visible="false" position="0 0.12 0" width="5.35" height="0.03" depth="8.35" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 1.0; transparent: true; opacity: 0.85"></a-box>
+
         <!-- Dedicated Overhead Downlight -->
-        <a-light type="spot" color="#f8fafc" intensity="1.2" position="0 6.5 0" target="#display-bay-1" angle="35" penumbra="0.6"></a-light>
+        <a-light id="spot-range-rover-sport" type="spot" color="#ffffff" intensity="1.4" position="0 6.5 0" target="#bay-range-rover-sport" angle="40" penumbra="0.6"></a-light>
+
+        <!-- Information Label Plaque -->
+        <a-entity class="clickable" data-car-id="range-rover-sport" position="2.2 0 3.6" rotation="0 -35 0">
+          <a-cylinder radius="0.03" height="0.8" position="0 0.4 0" color="#1e293b" metalness="0.7"></a-cylinder>
+          <a-cylinder radius="0.2" height="0.04" position="0 0.02 0" color="#0f172a"></a-cylinder>
+          <a-entity position="0 0.85 0" rotation="-28 0 0">
+            <a-box width="1.2" height="0.55" depth="0.03" color="#0b1120" metalness="0.7"></a-box>
+            <a-box width="1.22" height="0.02" depth="0.035" position="0 0.27 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+            <a-text value="Range Rover Sport" align="center" position="0 0.09 0.02" width="2.8" color="#ffffff" font="aileronsemibold"></a-text>
+            <a-text value="Luxury SUV" align="center" position="0 -0.11 0.02" width="2.3" color="#38bdf8" font="kelsonsans"></a-text>
+          </a-entity>
+        </a-entity>
+
+        <!-- Reusable 3D Car Entity -->
+        <a-entity id="car-range-rover-sport" car-display="carId: range-rover-sport"></a-entity>
       </a-entity>
 
-      <!-- Display Bay 2 (Left Rear) -->
-      <a-entity id="display-bay-2" position="-10 0 4">
-        <a-box position="0 0.05 0" width="5" height="0.1" depth="8" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
-        <a-box position="0 0.11 3.95" width="4.9" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.6"></a-box>
-        <a-box position="0 0.11 -3.95" width="4.9" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.6"></a-box>
-        <a-box position="-2.2 0.45 3.6" width="0.4" height="0.8" depth="0.4" color="#0f172a"></a-box>
-        <a-text value="BAY 02\nEMPTY" align="center" position="-2.2 0.55 3.82" width="2.4" color="#94a3b8"></a-text>
-        <a-light type="spot" color="#f8fafc" intensity="1.2" position="0 6.5 0" target="#display-bay-2" angle="35" penumbra="0.6"></a-light>
+      <!-- ------------------------------------------------------------------
+           ROW 4 (REAR): BAY 7 - FORD MUSTANG (Muscle Car)
+           ------------------------------------------------------------------ -->
+      <a-entity id="bay-ford-mustang" position="10 0 -12">
+        <!-- Display Platform Base -->
+        <a-box class="clickable platform-base" data-car-id="ford-mustang" position="0 0.05 0" width="5.2" height="0.1" depth="8.2" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
+        <!-- Blue LED Perimeter Border -->
+        <a-box position="0 0.11 4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <a-box position="0 0.11 -4.05" width="5.1" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.7"></a-box>
+        <!-- Subtle Active Selection Border -->
+        <a-box class="bay-highlight-border" visible="false" position="0 0.12 0" width="5.35" height="0.03" depth="8.35" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 1.0; transparent: true; opacity: 0.85"></a-box>
+
+        <!-- Dedicated Overhead Downlight -->
+        <a-light id="spot-ford-mustang" type="spot" color="#ffffff" intensity="1.4" position="0 6.5 0" target="#bay-ford-mustang" angle="40" penumbra="0.6"></a-light>
+
+        <!-- Information Label Plaque -->
+        <a-entity class="clickable" data-car-id="ford-mustang" position="-2.2 0 3.6" rotation="0 35 0">
+          <a-cylinder radius="0.03" height="0.8" position="0 0.4 0" color="#1e293b" metalness="0.7"></a-cylinder>
+          <a-cylinder radius="0.2" height="0.04" position="0 0.02 0" color="#0f172a"></a-cylinder>
+          <a-entity position="0 0.85 0" rotation="-28 0 0">
+            <a-box width="1.1" height="0.55" depth="0.03" color="#0b1120" metalness="0.7"></a-box>
+            <a-box width="1.12" height="0.02" depth="0.035" position="0 0.27 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+            <a-text value="Ford Mustang" align="center" position="0 0.09 0.02" width="3.2" color="#ffffff" font="aileronsemibold"></a-text>
+            <a-text value="Muscle Car" align="center" position="0 -0.11 0.02" width="2.3" color="#38bdf8" font="kelsonsans"></a-text>
+          </a-entity>
+        </a-entity>
+
+        <!-- Reusable 3D Car Entity -->
+        <a-entity id="car-ford-mustang" car-display="carId: ford-mustang"></a-entity>
       </a-entity>
 
-      <!-- Display Bay 3 (Right Front) -->
-      <a-entity id="display-bay-3" position="10 0 -8">
-        <a-box position="0 0.05 0" width="5" height="0.1" depth="8" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
-        <a-box position="0 0.11 3.95" width="4.9" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.6"></a-box>
-        <a-box position="0 0.11 -3.95" width="4.9" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.6"></a-box>
-        <a-box position="2.2 0.45 3.6" width="0.4" height="0.8" depth="0.4" color="#0f172a"></a-box>
-        <a-text value="BAY 03\nEMPTY" align="center" position="2.2 0.55 3.82" width="2.4" color="#94a3b8"></a-text>
-        <a-light type="spot" color="#f8fafc" intensity="1.2" position="0 6.5 0" target="#display-bay-3" angle="35" penumbra="0.6"></a-light>
-      </a-entity>
-
-      <!-- Display Bay 4 (Right Rear) -->
-      <a-entity id="display-bay-4" position="10 0 4">
-        <a-box position="0 0.05 0" width="5" height="0.1" depth="8" color="#181d26" roughness="0.3" metalness="0.4"></a-box>
-        <a-box position="0 0.11 3.95" width="4.9" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.6"></a-box>
-        <a-box position="0 0.11 -3.95" width="4.9" height="0.02" depth="0.08" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.6"></a-box>
-        <a-box position="2.2 0.45 3.6" width="0.4" height="0.8" depth="0.4" color="#0f172a"></a-box>
-        <a-text value="BAY 04\nEMPTY" align="center" position="2.2 0.55 3.82" width="2.4" color="#94a3b8"></a-text>
-        <a-light type="spot" color="#f8fafc" intensity="1.2" position="0 6.5 0" target="#display-bay-4" angle="35" penumbra="0.6"></a-light>
+      <!-- ------------------------------------------------------------------
+           6. 3D VR Information Board (In-World Display for WebXR Headsets)
+           ------------------------------------------------------------------ -->
+      <a-entity id="vr-info-board" visible="false" position="0 0 0">
+        <!-- Floating Glassmorphism Backing -->
+        <a-plane width="2.8" height="2.2" color="#0b1120" material="opacity: 0.95; transparent: true; roughness: 0.2; metalness: 0.7"></a-plane>
+        <a-box position="0 1.09 0.01" width="2.82" height="0.04" depth="0.02" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 0.9"></a-box>
+        
+        <!-- Header: Vehicle Name & Category -->
+        <a-text id="vr-text-name" value="BMW M4" align="center" position="0 0.82 0.03" width="5.2" color="#ffffff" font="aileronsemibold"></a-text>
+        <a-text id="vr-text-category" value="Sports Coupe" align="center" position="0 0.62 0.03" width="3.4" color="#38bdf8" font="kelsonsans"></a-text>
+        <a-text id="vr-text-price" value="₹1.50 Crore" align="center" position="0 0.42 0.03" width="4.2" color="#10b981" font="aileronsemibold"></a-text>
+        
+        <!-- Divider Line -->
+        <a-plane position="0 0.28 0.02" width="2.4" height="0.01" color="#334155"></a-plane>
+        
+        <!-- Specs Column 1 -->
+        <a-text id="vr-text-engine" value="Engine: 3.0L Twin-Turbo" align="left" position="-1.2 0.12 0.03" width="2.6" color="#e2e8f0"></a-text>
+        <a-text id="vr-text-power" value="Power: 503 HP" align="left" position="-1.2 -0.10 0.03" width="2.6" color="#e2e8f0"></a-text>
+        <a-text id="vr-text-trans" value="Trans: 8-Speed Auto" align="left" position="-1.2 -0.32 0.03" width="2.6" color="#e2e8f0"></a-text>
+        <a-text id="vr-text-fuel" value="Fuel: Petrol" align="left" position="-1.2 -0.54 0.03" width="2.6" color="#e2e8f0"></a-text>
+        
+        <!-- Specs Column 2 -->
+        <a-text id="vr-text-speed" value="Top Speed: 250 km/h" align="left" position="0.15 0.12 0.03" width="2.6" color="#e2e8f0"></a-text>
+        <a-text id="vr-text-accel" value="0-100: 3.9 seconds" align="left" position="0.15 -0.10 0.03" width="2.6" color="#e2e8f0"></a-text>
+        
+        <!-- VR Interactive Close Button -->
+        <a-entity id="vr-close-btn" class="clickable" position="0 -0.85 0.03">
+          <a-box width="1.0" height="0.24" depth="0.04" color="#ef4444" material="roughness: 0.4"></a-box>
+          <a-text value="Close" align="center" position="0 0 0.03" width="2.6" color="#ffffff"></a-text>
+        </a-entity>
       </a-entity>
 
     </a-scene>
