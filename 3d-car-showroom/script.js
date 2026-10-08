@@ -268,13 +268,15 @@ let currentZoomDist = 4.5;
 let baselineZoomDist = 4.5;
 let toastTimer = null;
 
-function showCarSelectedToast(carName) {
+function showCarSelectedToast(message) {
   const toast = document.getElementById('car-toast');
   const toastText = document.getElementById('toast-text');
   if (!toast) return;
 
   if (toastText) {
-    toastText.textContent = `${carName} selected`;
+    toastText.textContent = (message.includes('reset') || message.includes('updated') || message.includes('selected'))
+      ? message
+      : `${message} selected`;
   }
   toast.classList.add('active');
 
