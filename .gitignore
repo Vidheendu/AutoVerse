@@ -1,2 +1,51 @@
+# AutoVerse VR - .gitignore
 
+# ----------------------------------------------------------------------------
+# 1. GitHub File Size Limit (>100 MB individual file limit)
+# ----------------------------------------------------------------------------
+# Audi R8 binary GLB is ~110.6 MB, exceeding GitHub's maximum 100 MB file limit.
+# Instructions to download or optimize this asset are provided in assets/README.md
 3d-car-showroom/assets/cars/audi-r8.glb
+
+# ----------------------------------------------------------------------------
+# 2. Operating System Files
+# ----------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ----------------------------------------------------------------------------
+# 3. Editor & IDE Artifacts
+# ----------------------------------------------------------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# ----------------------------------------------------------------------------
+# 4. Logs and Temporary Files
+# ----------------------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.tempmediaStorage/
+
+# ----------------------------------------------------------------------------
+# 5. Local Dev & Inspection Scratch Scripts
+# ----------------------------------------------------------------------------
+3d-car-showroom/inspect_*.js
+3d-car-showroom/test_*.js
+3d-car-showroom/identify_*.js
+3d-car-showroom/list_*.js
