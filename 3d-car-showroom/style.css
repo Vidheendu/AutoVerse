@@ -1,6 +1,6 @@
 /* ==========================================================================
-   3D CAR SHOWROOM - STYLE SHEET
-   Phase 1: Foundation & Presentation Overlay
+   AutoVerse VR - An Immersive 3D Virtual Car Showroom
+   Phase 9: Final Polish, Performance & Reliability
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -51,6 +51,11 @@ html, body {
   color: var(--text-primary);
   user-select: none;
   -webkit-font-smoothing: antialiased;
+}
+
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
 }
 
 /* --------------------------------------------------------------------------
@@ -1032,13 +1037,13 @@ html, body {
 .customization-panel {
   position: fixed;
   top: 76px;
-  left: 28px;
-  width: 330px;
+  left: 252px;
+  width: 320px;
   max-height: calc(100vh - 110px);
-  background: rgba(11, 15, 23, 0.92);
-  border: 1px solid rgba(56, 189, 248, 0.32);
+  background: rgba(11, 15, 23, 0.94);
+  border: 1px solid rgba(56, 189, 248, 0.35);
   border-radius: var(--radius-lg);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 30px rgba(56, 189, 248, 0.14);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), 0 0 30px rgba(56, 189, 248, 0.16);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: 22px;
@@ -1049,14 +1054,14 @@ html, body {
   overflow-y: auto;
   pointer-events: none;
   opacity: 0;
-  transform: translateX(-390px);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  transform: translateX(-30px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
 }
 
 .customization-panel.active {
   pointer-events: auto;
   opacity: 1;
-  transform: translateX(0);
+  transform: translateX(0) scale(1);
 }
 
 .customization-panel::-webkit-scrollbar {
@@ -1253,6 +1258,14 @@ html, body {
 }
 
 /* Mobile & Tablet Responsiveness for Customization Studio */
+@media (max-width: 1080px) and (min-width: 641px) {
+  .customization-panel {
+    left: 20px;
+    width: 300px;
+    z-index: 550;
+  }
+}
+
 @media (max-width: 640px) {
   .customization-panel {
     top: auto;

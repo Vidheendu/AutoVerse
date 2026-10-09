@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * AutoVerse VR - 3D Car Showroom Controller
- * Phase 5: 360° Car Inspection & View Controls
+ * AutoVerse VR - An Immersive 3D Virtual Car Showroom Controller
+ * Phase 9: Final Polish, Performance & Reliability
  * ============================================================================
  */
 
@@ -374,8 +374,6 @@ function enterInspectionMode(carData) {
     inspectionPanel.classList.add('active');
     inspectionPanel.setAttribute('aria-hidden', 'false');
   }
-
-  console.log(`🔍 [AutoVerse Inspection] Active inspection vehicle: ${carData.name}`);
 }
 
 /**
@@ -523,7 +521,6 @@ function exitInspectionMode() {
 
   activeInspectionCar = null;
   activeRotationAnimId = null;
-  console.log('🚪 Exited Inspection Mode.');
 }
 
 // ----------------------------------------------------------------------------
@@ -705,7 +702,7 @@ function selectCar(carId) {
     if (elPrice) elPrice.textContent = carData.price;
     if (elQuickPower) elQuickPower.textContent = carData.power;
     if (elQuickSpeed) elQuickSpeed.textContent = carData.topSpeed;
-    if (elQuickAccel) elQuickAccel.textContent = carData.acceleration;
+    if (elQuickAccel) elQuickAccel.textContent = carData.acceleration.replace(' seconds', 's');
 
     if (elEngine) elEngine.textContent = carData.engine;
     if (elPower) elPower.textContent = carData.power;
@@ -892,8 +889,6 @@ function applyCarColor(carId, colorHex, showToast = true) {
   if (showToast) {
     showCarSelectedToast(`${carData.name} exterior updated to ${colorName}`);
   }
-
-  console.log(`🎨 [AutoVerse Customizer] Applied ${colorName} (${colorHex}) to ${carData.name} (${recoloredCount} mesh materials updated).`);
 }
 
 /**
@@ -920,6 +915,20 @@ function openCustomizer(carId) {
   const carData = cars.find(c => c.id === targetId);
   if (!carData) return;
 
+  // On medium or compact viewports, collapse navigation panel to avoid crowding
+  if (window.innerWidth <= 1100) {
+    const navPanel = document.getElementById('showroom-nav-panel');
+    const btnToggleNav = document.getElementById('btn-toggle-nav');
+    if (navPanel && !navPanel.classList.contains('collapsed')) {
+      navPanel.classList.add('collapsed');
+      if (btnToggleNav) {
+        btnToggleNav.setAttribute('aria-expanded', 'false');
+        const icon = btnToggleNav.querySelector('.toggle-icon');
+        if (icon) icon.textContent = '+';
+      }
+    }
+  }
+
   const customizerPanel = document.getElementById('customization-panel');
   const carNameLabel = document.getElementById('customizer-car-name');
 
@@ -933,8 +942,6 @@ function openCustomizer(carId) {
     customizerPanel.classList.add('active');
     customizerPanel.setAttribute('aria-hidden', 'false');
   }
-
-  console.log(`🎨 [AutoVerse Customizer] Opened customization studio for: ${carData.name}`);
 }
 
 /**
@@ -1024,26 +1031,19 @@ function registerCarDisplayComponent() {
         // Set gltf-model attribute to load asset from catalog path
         this.el.setAttribute('gltf-model', carData.model);
 
-        // On successful model load, optimize shadows and surface materials
+        // On successful model load, configure materials and notify progress
         this.el.addEventListener('model-loaded', () => {
-          const mesh = this.el.getObject3D('mesh');
-          if (mesh) {
-            mesh.traverse((node) => {
-              if (node.isMesh && node.material) {
-                node.castShadow = true;
-                node.receiveShadow = true;
-              }
-            });
-            // Apply configured vehicle color (Phase 6)
-            applyCarColor(this.carData.id, this.carData.currentColor || this.carData.defaultColor, false);
-          }
-          console.log(`✅ [${this.carData.name}] 3D model loaded successfully.`);
+          const oldStandby = this.el.querySelector('.standby-marker');
+          if (oldStandby) oldStandby.remove();
+
+          // Apply configured vehicle color (Phase 6)
+          applyCarColor(this.carData.id, this.carData.currentColor || this.carData.defaultColor, false);
           notifyModelSettled(this.carData.id, true);
         });
 
-        // Handle missing model gracefully (logged for student/evaluator information)
-        this.el.addEventListener('model-error', (err) => {
-          console.info(`ℹ️ [${this.carData.name}] Model file not found at "${this.carData.model}". Place "${this.carData.id}.glb" in assets/cars/ to render this vehicle.`);
+        // Handle missing model gracefully with standby placeholder
+        this.el.addEventListener('model-error', () => {
+          setupStandbyMarker(this.el, this.carData);
           notifyModelSettled(this.carData.id, false);
         });
       }
@@ -1051,14 +1051,79 @@ function registerCarDisplayComponent() {
   }
 }
 
+/**
+ * Creates an elegant, lightweight in-world holographic standby marker
+ * for vehicle bays whose optional GLB file is missing or still being added.
+ */
+function setupStandbyMarker(carEntity, carData) {
+  if (!carEntity || carEntity.querySelector('.standby-marker')) return;
+
+  const marker = document.createElement('a-entity');
+  marker.classList.add('standby-marker');
+  marker.setAttribute('position', '0 0.25 0');
+
+  // Subtle perimeter illuminated halo
+  const ring = document.createElement('a-ring');
+  ring.setAttribute('radius-inner', '1.4');
+  ring.setAttribute('radius-outer', '1.46');
+  ring.setAttribute('rotation', '-90 0 0');
+  ring.setAttribute('position', '0 0.02 0');
+  ring.setAttribute('color', '#38bdf8');
+  ring.setAttribute('material', 'emissive: #38bdf8; emissiveIntensity: 0.85; transparent: true; opacity: 0.8');
+
+  // Holographic standing notice
+  const textGroup = document.createElement('a-entity');
+  textGroup.setAttribute('position', '0 0.9 0');
+
+  const titleText = document.createElement('a-text');
+  titleText.setAttribute('value', carData.name);
+  titleText.setAttribute('align', 'center');
+  titleText.setAttribute('position', '0 0.42 0');
+  titleText.setAttribute('width', '3.6');
+  titleText.setAttribute('color', '#f8fafc');
+  titleText.setAttribute('font', 'aileronsemibold');
+
+  const statusText = document.createElement('a-text');
+  statusText.setAttribute('value', 'VEHICLE ASSET STANDBY');
+  statusText.setAttribute('align', 'center');
+  statusText.setAttribute('position', '0 0.18 0');
+  statusText.setAttribute('width', '2.6');
+  statusText.setAttribute('color', '#38bdf8');
+  statusText.setAttribute('font', 'kelsonsans');
+
+  const hintText = document.createElement('a-text');
+  hintText.setAttribute('value', `Drop ${carData.id}.glb in assets/cars/`);
+  hintText.setAttribute('align', 'center');
+  hintText.setAttribute('position', '0 -0.05 0');
+  hintText.setAttribute('width', '1.9');
+  hintText.setAttribute('color', '#94a3b8');
+
+  textGroup.appendChild(titleText);
+  textGroup.appendChild(statusText);
+  textGroup.appendChild(hintText);
+
+  marker.appendChild(ring);
+  marker.appendChild(textGroup);
+  carEntity.appendChild(marker);
+}
+
 // ----------------------------------------------------------------------------
-// Model Loading Progress Tracker (Phase 8)
+// Model Loading Progress Tracker (Phase 9 Final Loading Experience)
 // ----------------------------------------------------------------------------
 let settledModelsCount = 0;
+let loadedModelsCount = 0;
+let failedModelsCount = 0;
+let loadingDismissed = false;
 const totalShowroomModels = cars.length; // 7
 
 function notifyModelSettled(carId, isSuccess) {
   settledModelsCount++;
+  if (isSuccess) {
+    loadedModelsCount++;
+  } else {
+    failedModelsCount++;
+  }
+
   const fill = document.getElementById('loading-bar-fill');
   const subText = document.getElementById('loading-sub-text');
   const percent = Math.min(100, Math.round((settledModelsCount / totalShowroomModels) * 100));
@@ -1067,7 +1132,9 @@ function notifyModelSettled(carId, isSuccess) {
     fill.style.width = `${percent}%`;
   }
   if (subText) {
-    subText.textContent = `Loading vehicles (${settledModelsCount}/${totalShowroomModels})...`;
+    const car = cars.find(c => c.id === carId);
+    const carLabel = car ? car.name : carId;
+    subText.textContent = `Loading vehicles (${settledModelsCount}/${totalShowroomModels})... ${carLabel}`;
   }
 
   if (settledModelsCount >= totalShowroomModels) {
@@ -1076,25 +1143,41 @@ function notifyModelSettled(carId, isSuccess) {
 }
 
 function dismissLoadingScreen() {
+  if (loadingDismissed) return;
+  loadingDismissed = true;
+
   const loadingScreen = document.getElementById('showroom-loading-screen');
-  if (!loadingScreen || loadingScreen.classList.contains('fade-out')) return;
+  if (!loadingScreen) return;
 
   const subText = document.getElementById('loading-sub-text');
   const fill = document.getElementById('loading-bar-fill');
   if (fill) fill.style.width = '100%';
-  if (subText) subText.textContent = 'Welcome to AutoVerse VR';
 
+  if (subText) {
+    if (failedModelsCount > 0) {
+      subText.textContent = 'Some vehicles could not be loaded.';
+    } else {
+      subText.textContent = 'SHOWROOM READY';
+    }
+  }
+
+  const delay = failedModelsCount > 0 ? 850 : 500;
   setTimeout(() => {
     loadingScreen.classList.add('fade-out');
     setTimeout(() => {
       loadingScreen.style.display = 'none';
     }, 600);
-  }, 450);
+  }, delay);
 }
 
-// Safety timeout: dismiss loading screen after 3.8s max so user is never blocked even if assets take time or fail
+// Safety timeout: dismiss loading screen after 3.8s max so user is never blocked
 setTimeout(() => {
-  dismissLoadingScreen();
+  if (!loadingDismissed) {
+    if (settledModelsCount < totalShowroomModels) {
+      failedModelsCount += (totalShowroomModels - settledModelsCount);
+    }
+    dismissLoadingScreen();
+  }
 }, 3800);
 
 // ----------------------------------------------------------------------------
@@ -1107,23 +1190,25 @@ function registerShowroomBoundaries() {
         minX: { type: 'number', default: -18 },
         maxX: { type: 'number', default: 18 },
         minZ: { type: 'number', default: -18 },
-        maxZ: { type: 'number', default: 18 }
+        maxZ: { type: 'number', default: 18 },
+        minY: { type: 'number', default: 0 },
+        maxY: { type: 'number', default: 2.5 }
       },
 
       tick: function () {
-        const pos = this.el.getAttribute('position');
-        if (!pos) return;
+        const obj = this.el.object3D;
+        if (!obj) return;
+        const pos = obj.position;
 
-        let clampedX = Math.min(Math.max(pos.x, this.data.minX), this.data.maxX);
-        let clampedZ = Math.min(Math.max(pos.z, this.data.minZ), this.data.maxZ);
+        // Perform fast zero-allocation bounds clamping
+        if (pos.x < this.data.minX) pos.x = this.data.minX;
+        else if (pos.x > this.data.maxX) pos.x = this.data.maxX;
 
-        if (clampedX !== pos.x || clampedZ !== pos.z) {
-          this.el.setAttribute('position', {
-            x: clampedX,
-            y: pos.y,
-            z: clampedZ
-          });
-        }
+        if (pos.z < this.data.minZ) pos.z = this.data.minZ;
+        else if (pos.z > this.data.maxZ) pos.z = this.data.maxZ;
+
+        if (pos.y < this.data.minY) pos.y = this.data.minY;
+        else if (pos.y > this.data.maxY) pos.y = this.data.maxY;
       }
     });
   }
@@ -1194,10 +1279,10 @@ function registerVrControllerLocomotion() {
       },
 
       moveRig: function (stickX, stickY, dt) {
-        if (!this.headCamera) return;
-        const camRot = this.headCamera.getAttribute('rotation') || { y: 0 };
-        const rigRot = this.el.getAttribute('rotation') || { y: 0 };
-        const totalYaw = (camRot.y + rigRot.y) * (Math.PI / 180);
+        if (!this.headCamera || !this.headCamera.object3D || !this.el.object3D) return;
+        const camYaw = this.headCamera.object3D.rotation.y || 0;
+        const rigYaw = this.el.object3D.rotation.y || 0;
+        const totalYaw = camYaw + rigYaw;
 
         // stickY is -1 for forward, +1 for back
         const fwdX = -Math.sin(totalYaw) * (-stickY);
@@ -1205,30 +1290,21 @@ function registerVrControllerLocomotion() {
         const rightX = Math.cos(totalYaw) * stickX;
         const rightZ = -Math.sin(totalYaw) * stickX;
 
-        const pos = this.el.getAttribute('position') || { x: 0, y: 0, z: 0 };
+        const pos = this.el.object3D.position;
         const speed = this.data.moveSpeed * dt;
 
         let nextX = pos.x + (fwdX + rightX) * speed;
         let nextZ = pos.z + (fwdZ + rightZ) * speed;
 
-        // Apply soft bounds check so user doesn't leave the showroom
-        nextX = Math.max(-18, Math.min(18, nextX));
-        nextZ = Math.max(-18, Math.min(18, nextZ));
-
-        this.el.setAttribute('position', {
-          x: nextX,
-          y: pos.y,
-          z: nextZ
-        });
+        // Apply boundary clamp directly without allocating objects
+        pos.x = Math.max(-18, Math.min(18, nextX));
+        pos.z = Math.max(-18, Math.min(18, nextZ));
       },
 
       snapTurn: function (angleDelta) {
-        const rot = this.el.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
-        this.el.setAttribute('rotation', {
-          x: rot.x,
-          y: (rot.y + angleDelta) % 360,
-          z: rot.z
-        });
+        if (!this.el.object3D) return;
+        const rad = angleDelta * (Math.PI / 180);
+        this.el.object3D.rotation.y = (this.el.object3D.rotation.y + rad) % (Math.PI * 2);
       }
     });
   }
@@ -1655,9 +1731,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function triggerEnterVR() {
+    if (vrBadge && vrBadge.classList.contains('unsupported')) {
+      showCarSelectedToast(unsupportedMsg);
+      return;
+    }
     if (sceneEl) {
       if (typeof sceneEl.enterVR === 'function') {
-        sceneEl.enterVR();
+        try {
+          sceneEl.enterVR();
+        } catch (e) {
+          showCarSelectedToast(unsupportedMsg);
+        }
       }
     }
   }
@@ -1665,7 +1749,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnEnterVrBanner) {
     btnEnterVrBanner.addEventListener('click', () => {
       dismissVrBanner();
-      triggerEnterVR();
+      if (vrBadge && vrBadge.classList.contains('unsupported')) {
+        showCarSelectedToast(unsupportedMsg);
+      } else {
+        triggerEnterVR();
+      }
     });
   }
 
@@ -1728,13 +1816,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // A-Frame Scene Lifecycle Listeners (Phase 8)
   // --------------------------------------------------------------------------
   if (sceneEl) {
-    sceneEl.addEventListener('loaded', () => {
-      console.log('✅ AutoVerse VR Scene initialized.');
-      console.log('🏎️ 7-Vehicle Fleet & 360° Inspection Controls ready.');
-    });
-
     sceneEl.addEventListener('enter-vr', () => {
-      console.log('👓 Entered WebXR VR Mode.');
       if (introModal) introModal.classList.add('hidden');
       dismissVrBanner();
 
@@ -1749,7 +1831,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     sceneEl.addEventListener('exit-vr', () => {
-      console.log('👓 Exited WebXR VR Mode.');
       const vrGaze = document.getElementById('vr-gaze-cursor');
       if (vrGaze) vrGaze.setAttribute('visible', 'false');
 
